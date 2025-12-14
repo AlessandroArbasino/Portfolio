@@ -17,7 +17,8 @@ const projectSchema = new mongoose.Schema({
     github: String,
     demo: String,
     images: [String],
-    subProjects: [subProjectSchema]
+    subProjects: [subProjectSchema],
+    language: { type: String, required: true, default: 'it' }
 }, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);

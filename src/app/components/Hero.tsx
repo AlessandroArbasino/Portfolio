@@ -1,20 +1,17 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
-import { getFixedTexts, FixedTexts } from '../../api';
+import { useLanguage } from '../context/LanguageContext';
 
 export function Hero() {
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const [texts, setTexts] = useState<FixedTexts['hero'] | null>(null);
+  const { fixedTexts, loading } = useLanguage();
 
-  useEffect(() => {
-    getFixedTexts().then(data => setTexts(data.hero)).catch(console.error);
-  }, []);
+  if (loading || !fixedTexts || !fixedTexts.hero) return null; // Or a loading spinner
 
-  if (!texts) return null;
+  const { hero } = fixedTexts;
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center px-4 relative">
@@ -30,7 +27,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-white mb-4"
         >
-          {texts.title}
+          {hero.title}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +35,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-white/80 text-xl mb-8"
         >
-          {texts.subtitle}
+          {hero.subtitle}
         </motion.p>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -46,7 +43,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-white/70 max-w-md mx-auto mb-8"
         >
-          {texts.description}
+          {hero.description}
         </motion.p>
       </motion.div>
 

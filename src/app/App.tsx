@@ -5,25 +5,32 @@ import { Projects } from './components/Projects';
 import { Contact } from './components/Contact';
 import { AIChatButton } from './components/AIChatButton';
 import { VideoBackground } from './components/VideoBackground';
+import { LanguageProvider } from './context/LanguageContext';
+import { LanguageSelector } from './components/LanguageSelector';
 
 export default function App() {
   const [forcedBackground, setForcedBackground] = useState<string | null>(null);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      {/* Video Background */}
-      <VideoBackground forcedUrl={forcedBackground} />
+    <LanguageProvider>
+      <div className="relative min-h-screen overflow-x-hidden">
+        {/* Language Selector */}
+        <LanguageSelector />
 
-      {/* Main Content */}
-      <main className="relative z-10">
-        <Hero />
-        <About />
-        <Projects />
-        <Contact />
-      </main>
+        {/* Video Background */}
+        <VideoBackground forcedUrl={forcedBackground} />
 
-      {/* AI Chat Button */}
-      <AIChatButton onBackgroundChange={setForcedBackground} />
-    </div>
+        {/* Main Content */}
+        <main className="relative z-10">
+          <Hero />
+          <About />
+          <Projects />
+          <Contact />
+        </main>
+
+        {/* AI Chat Button */}
+        <AIChatButton onBackgroundChange={setForcedBackground} />
+      </div>
+    </LanguageProvider>
   );
 }

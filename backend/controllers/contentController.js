@@ -5,7 +5,8 @@ import BackgroundImage from '../models/BackgroundImage.js';
 // @route   GET /api/fixed-texts
 export const getFixedTexts = async (req, res) => {
     try {
-        const texts = await FixedText.findOne({ section: 'hero' });
+        const { lang } = req.query;
+        const texts = await FixedText.findOne({ section: 'hero', language: lang || 'it' });
         if (texts) {
             res.json({ hero: texts.content });
         } else {

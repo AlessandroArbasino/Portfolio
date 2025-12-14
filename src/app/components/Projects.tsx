@@ -7,15 +7,18 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 
 import { getProjects, Project } from '../../api';
+import { useLanguage } from '../context/LanguageContext';
 
 export function Projects() {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [expandedSubProject, setExpandedSubProject] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
 
   useEffect(() => {
-    getProjects()
+    setLoading(true);
+    getProjects(language)
       .then((data) => {
         setProjects(data);
         setLoading(false);
@@ -24,7 +27,7 @@ export function Projects() {
         console.error('Error fetching projects:', error);
         setLoading(false);
       });
-  }, []);
+  }, [language]);
 
   if (loading) {
     return <div className="text-white text-center py-20">Loading projects...</div>;

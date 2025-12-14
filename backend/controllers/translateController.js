@@ -49,15 +49,46 @@ export const translateItem = async (req, res) => {
                 // as per "pass whole body" instruction.
                 const translatedData = await translateContent(sourceData, lang);
 
-                // 4. Update ID/Section
-                // Append _lang to the original ID
+                // 4. Update ID/Section & Language
+                // Append _lang to the original ID to keep it unique (though not strictly necessary for Project if filtering by lang, but good for ID unique constraint)
                 const newId = `${sourceData[idField]}_${lang}`;
                 translatedData[idField] = newId;
+                translatedData.language = lang;
 
                 // 5. Save (Upsert)
                 const query = {};
-                query[idField] = newId;
+                if (type === 'project') {
+                    // For projects, we might rely on the unique ID
+                    query[idField] = newId;
+                } else {
+                    // For FixedText, we use the compound index section + language
+                    // But we modified the ID to include _lang so assuming we keep using that for uniqueness or query
+                    // Ideally we should match on section + language
+                    query.section = sourceData.section; // Keep original section name? 
+                    // Wait, if I change the ID in translatedData, I'm changing the 'section' field.
+                    // The requirement says "every string ... saved in db with language field".
+                    // For FixedText, section is the ID. 
 
+                    // Let's refine: 
+                    // Project: id="1_en", language="en"
+                    // FixedText: section="hero", language="en" (Compound Index)
+
+                    // So for FixedText, I SHOULD NOT change the section name if I want to query by section=hero & language=en.
+                    // BUT, previous implementation appended _lang.
+                    // User said: "In the get... I want you to add filter on language".
+
+                    // Strategy: 
+                    // Project: Keep id unique constraint, so "1_en". 
+                    // FixedText: Use section="hero" and language="en".
+
+                    if (type === 'fixed') {
+                        translatedData.section = sourceData.section; // Revert to original section name
+                        query.section = sourceData.section;
+                        query.language = lang;
+                    } else {
+                        query[idField] = newId;
+                    }
+                }
                 const savedDoc = await Model.findOneAndUpdate(
                     query,
                     translatedData,

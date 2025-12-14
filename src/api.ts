@@ -26,16 +26,16 @@ export interface FixedTexts {
     };
 }
 
-export const getProjects = async (): Promise<Project[]> => {
-    const response = await fetch('/api/projects');
+export const getProjects = async (lang: string = 'it'): Promise<Project[]> => {
+    const response = await fetch(`/api/projects?lang=${lang}`);
     if (!response.ok) {
         throw new Error('Failed to fetch projects');
     }
     return response.json();
 };
 
-export const getFixedTexts = async (): Promise<FixedTexts> => {
-    const response = await fetch('/api/fixed-texts');
+export const getFixedTexts = async (lang: string = 'it'): Promise<FixedTexts> => {
+    const response = await fetch(`/api/fixed-texts?lang=${lang}`);
     if (!response.ok) {
         throw new Error('Failed to fetch texts');
     }

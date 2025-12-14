@@ -4,7 +4,8 @@ import Project from '../models/Project.js';
 // @route   GET /api/projects
 export const getProjects = async (req, res) => {
     try {
-        const projects = await Project.find({});
+        const { lang } = req.query;
+        const projects = await Project.find({ language: lang || 'it' });
         res.json(projects);
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -135,6 +135,45 @@ export function Projects() {
                           ))}
                         </div>
 
+                        {/* Challenges and Solutions */}
+                        {project.challenges && project.challenges.length > 0 && (
+                          <div className="mb-6 space-y-2">
+                            <h4 className="text-white/80 font-medium mb-3">Sfide e Soluzioni</h4>
+                            {project.challenges.map((challenge, cIndex) => (
+                              <div
+                                key={cIndex}
+                                className="bg-white/5 rounded-lg border border-white/10 overflow-hidden"
+                              >
+                                <button
+                                  onClick={() => {
+                                    // Helper function or inline state management for generic accordion needed if we want independent toggle
+                                    // For simplicity using a local map or just use details/summary or Radix.
+                                    // Let's implement a simple inline toggle for this specific map if possible, 
+                                    // BUT, implementing state for dynamic list inside a mapped component (Project) is tricky without extracting a component.
+                                    // Let's Extract 'ChallengeItem' component inline or use details element for native behavior 
+                                    // OR better: Create a ChallengeAccordion component outside.
+                                    // Since I can't create new file easily without planning, I will make a simple toggle using state is hard here.
+                                    // User asked for "Drop Down", so native <details> is perfect and simple.
+                                  }}
+                                  className="w-full text-left"
+                                >
+                                  <details className="group">
+                                    <summary className="px-4 py-3 flex items-center justify-between cursor-pointer list-none hover:bg-white/5 transition-colors">
+                                      <span className="text-white/90 text-sm font-medium">{challenge.problem}</span>
+                                      <span className="text-white/60 group-open:rotate-180 transition-transform">
+                                        <ChevronDown size={16} />
+                                      </span>
+                                    </summary>
+                                    <div className="px-4 py-3 border-t border-white/10 bg-white/5 text-white/70 text-sm">
+                                      <p><span className="text-green-400 font-medium">Soluzione:</span> {challenge.solution}</p>
+                                    </div>
+                                  </details>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="flex gap-3 mb-4">
                           {project.github && (
                             <a
@@ -211,6 +250,26 @@ export function Projects() {
                                           </div>
                                         )}
 
+                                        {/* SubProject Challenges */}
+                                        {subProject.challenges && subProject.challenges.length > 0 && (
+                                          <div className="mb-4 space-y-2">
+                                            <p className="text-white/60 text-xs font-medium">Sfide:</p>
+                                            {subProject.challenges.map((challenge, scIndex) => (
+                                              <div key={scIndex} className="bg-white/5 rounded border border-white/5 overflow-hidden">
+                                                <details className="group">
+                                                  <summary className="px-3 py-2 flex items-center justify-between cursor-pointer list-none hover:bg-white/5">
+                                                    <span className="text-white/80 text-xs">{challenge.problem}</span>
+                                                    <ChevronDown size={12} className="text-white/40 group-open:rotate-180 transition-transform" />
+                                                  </summary>
+                                                  <div className="px-3 py-2 border-t border-white/5 bg-black/20 text-white/60 text-xs">
+                                                    <span className="text-green-400/80">Soluzione: </span> {challenge.solution}
+                                                  </div>
+                                                </details>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+
                                         <p className="text-white/60 text-sm mb-3">
                                           {subProject.description}
                                         </p>
@@ -251,7 +310,7 @@ export function Projects() {
             </motion.div>
           ))}
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   );
 }

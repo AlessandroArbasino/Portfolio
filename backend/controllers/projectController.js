@@ -16,7 +16,7 @@ export const getProjects = async (req, res) => {
 // @route   POST /api/projects
 export const createProject = async (req, res) => {
     try {
-        const { id, name, description, tech, github, demo, images, subProjects } = req.body;
+        const { id, name, description, tech, github, demo, images, subProjects, challenges } = req.body;
 
         // Check if project exists
         const projectExists = await Project.findOne({ id });
@@ -31,7 +31,10 @@ export const createProject = async (req, res) => {
             tech,
             github,
             demo,
+            github,
+            demo,
             images,
+            challenges,
             subProjects
         });
 

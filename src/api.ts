@@ -5,6 +5,10 @@ export interface SubProject {
     tech: string[];
     link?: string;
     images?: string[];
+    challenges?: {
+        problem: string;
+        solution: string;
+    }[];
 }
 
 export interface Project {
@@ -15,6 +19,10 @@ export interface Project {
     github?: string;
     demo?: string;
     images: string[];
+    challenges?: {
+        problem: string;
+        solution: string;
+    }[];
     subProjects?: SubProject[];
 }
 

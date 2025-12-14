@@ -43,8 +43,11 @@ const seedData = async () => {
                     demo: '#',
                     images: [
                         'https://images.unsplash.com/photo-1658297063569-162817482fb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlY29tbWVyY2UlMjB3ZWJzaXRlfGVufDF8fHx8MTc2NTYzNTUyMXww&ixlib=rb-4.1.0&q=80&w=1080',
-                        'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800',
                         'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
+                    ],
+                    challenges: [
+                        { problem: "Gestione concorrenza ordini", solution: "Utilizzo di transazioni database e locking ottimistico" },
+                        { problem: "Latenza pagamenti", solution: "Implementazione webhook asincroni per conferme Stripe" }
                     ],
                     subProjects: [
                         {
@@ -57,6 +60,9 @@ const seedData = async () => {
                                 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZG1pbiUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NjU3MjM4NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
                                 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
                             ],
+                            challenges: [
+                                { problem: "Performance dashboard", solution: "Caching dati aggregati con Redis" }
+                            ]
                         },
                         {
                             id: '1-2',

@@ -6,7 +6,11 @@ const subProjectSchema = new mongoose.Schema({
     description: String,
     tech: [String],
     link: String,
-    images: [String]
+    images: [String],
+    challenges: [{
+        problem: String,
+        solution: String
+    }]
 });
 
 const projectSchema = new mongoose.Schema({
@@ -17,6 +21,10 @@ const projectSchema = new mongoose.Schema({
     github: String,
     demo: String,
     images: [String],
+    challenges: [{
+        problem: String,
+        solution: String
+    }],
     subProjects: [subProjectSchema],
     language: { type: String, required: true, default: 'it' }
 }, { timestamps: true });

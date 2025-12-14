@@ -5,6 +5,7 @@ import connectDB from './config/db.js';
 import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import translateRoutes from './routes/translateRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
 import BackgroundImage from './models/BackgroundImage.js';
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api/projects', projectRoutes);
 app.use('/api', contentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/translate', translateRoutes);
 
 // Seeder Logic (Run once if DB is empty)
 const seedData = async () => {

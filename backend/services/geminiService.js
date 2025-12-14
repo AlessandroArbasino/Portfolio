@@ -49,3 +49,28 @@ export const getGeminiResponse = async (history, message) => {
         throw new Error('Failed to get response from AI');
     }
 };
+
+export const translateContent = async (content, targetLanguage) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
+
+        const prompt = `
+            You are a professional translator. 
+            Translate the values of the following JSON object into ${targetLanguage}. 
+            Do NOT translate the keys.
+            Do NOT translate proper names if not appropriate (e.g. brand names, technical terms like React, MongoDB).
+            Return ONLY the JSON object.
+
+            Input JSON:
+            ${JSON.stringify(content)}
+        `;
+
+        const result = await model.generateContent(prompt);
+        const translatedJson = result.response.text();
+        return JSON.parse(translatedJson);
+
+    } catch (error) {
+        console.error(`Gemini Translation Error (${targetLanguage}):`, error);
+        throw new Error(`Failed to translate to ${targetLanguage}`);
+    }
+};

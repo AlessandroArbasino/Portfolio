@@ -6,6 +6,7 @@ import { Contact } from './components/Contact';
 import { AIChatButton } from './components/AIChatButton';
 import { VideoBackground } from './components/VideoBackground';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
 
 export default function App() {
@@ -13,24 +14,26 @@ export default function App() {
 
   return (
     <LanguageProvider>
-      <div className="relative min-h-screen overflow-x-hidden">
-        {/* Language Selector */}
-        <LanguageSelector />
+      <ThemeProvider>
+        <div className="relative min-h-screen overflow-x-hidden">
+          {/* Language Selector */}
+          <LanguageSelector />
 
-        {/* Video Background */}
-        <VideoBackground forcedUrl={forcedBackground} />
+          {/* Video Background */}
+          <VideoBackground forcedUrl={forcedBackground} />
 
-        {/* Main Content */}
-        <main className="relative z-10">
-          <Hero />
-          <About />
-          <Projects />
-          <Contact />
-        </main>
+          {/* Main Content */}
+          <main className="relative z-10">
+            <Hero />
+            <About />
+            <Projects />
+            <Contact />
+          </main>
 
-        {/* AI Chat Button */}
-        <AIChatButton onBackgroundChange={setForcedBackground} />
-      </div>
+          {/* AI Chat Button */}
+          <AIChatButton onBackgroundChange={setForcedBackground} />
+        </div>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { sendMessage, fetchChatHistory } from '../../api';
+import { useTheme } from '../context/ThemeContext';
 
 interface AIChatButtonProps {
   onBackgroundChange?: (url: string | null) => void;
@@ -39,6 +40,8 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
     }
   }, [isOpen, sessionId]);
 
+  const { updateTheme } = useTheme();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isLoading) return;
@@ -55,6 +58,11 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
       if (result.backgroundUrl && onBackgroundChange) {
         onBackgroundChange(result.backgroundUrl);
       }
+
+      if (result.theme) {
+        updateTheme(result.theme);
+      }
+
     } catch (error) {
       console.error("Chat Error:", error);
       setChatHistory(prev => [...prev, { role: 'assistant', content: "Scusa, ho avuto un problema nel processare la tua richiesta." }]);
@@ -71,7 +79,7 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
         animate={{ scale: 1 }}
         transition={{ duration: 0.3, delay: 1 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-primary-foreground hover:shadow-xl transition-shadow"
         aria-label="Open AI chat"
       >
         <AnimatePresence mode="wait">
@@ -109,11 +117,11 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
             transition={{ duration: 0.3 }}
             className="fixed bottom-24 right-6 z-40 w-[calc(100vw-3rem)] max-w-md"
           >
-            <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+            <div className="bg-popover/95 backdrop-blur-xl rounded-2xl border border-border shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
-                <h3 className="text-white">AI Assistant</h3>
-                <p className="text-white/80 text-sm">Chiedimi di modificare la moodboard del sito</p>
+              <div className="bg-primary px-6 py-4">
+                <h3 className="text-primary-foreground font-medium">AI Assistant</h3>
+                <p className="text-primary-foreground/80 text-sm">Chiedimi di modificare la moodboard del sito</p>
               </div>
 
               {/* Messages */}
@@ -124,31 +132,31 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
                     initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className={`max-w-[80%] p-3 rounded-lg ${msg.role === 'user'
-                      ? 'bg-purple-600 ml-auto text-white'
-                      : 'bg-white/10 text-white/90'
+                      ? 'bg-primary ml-auto text-primary-foreground'
+                      : 'bg-muted text-foreground'
                       }`}
                   >
                     <p className="text-sm">{msg.content}</p>
                   </motion.div>
                 ))}
                 {isLoading && (
-                  <div className="text-white/50 text-xs italic">Sta scrivendo...</div>
+                  <div className="text-muted-foreground text-xs italic">Sta scrivendo...</div>
                 )}
               </div>
 
               {/* Input */}
-              <form onSubmit={handleSubmit} className="p-4 border-t border-white/10">
+              <form onSubmit={handleSubmit} className="p-4 border-t border-border">
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Scrivi un messaggio..."
-                    className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors"
+                    className="flex-1 bg-input border border-input rounded-lg px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
                   />
                   <button
                     type="submit"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg px-4 py-2 text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="bg-primary rounded-lg px-4 py-2 text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
                     aria-label="Send message"
                     disabled={isLoading}
                   >

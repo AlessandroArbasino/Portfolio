@@ -1,5 +1,6 @@
 import FixedText from '../models/FixedText.js';
 import BackgroundImage from '../models/BackgroundImage.js';
+import { searchVideos } from '../utils/pexels.js';
 
 // @desc    Get fixed texts
 // @route   GET /api/fixed-texts
@@ -34,52 +35,48 @@ export const updateFixedTexts = async (req, res) => {
     }
 };
 
-// @desc    Get background images from Storyblocks
+// @desc    Get background images from Pexels
 // @route   GET /api/background-images
 export const getBackgroundImages = async (req, res) => {
     try {
-        const { keywords, content_type } = req.query;
-        const auth = generateStoryblocksAuth();
+        const { keywords } = req.query;
 
-        if (!auth) {
-            // Fallback if no keys
-            return res.json([
-                "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80",
-                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80"
-            ]);
-        }
+        // Default fallbacks if no results or error
+        const fallbacks = [
+            "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80",
+            "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80"
+        ];
 
-        const { APIKEY, EXPIRES, HMAC } = auth;
-        const project_id = process.env.STORYBLOCKS_PROJECT_ID || '1'; // Default User ID if not specific
-        const user_id = process.env.STORYBLOCKS_USER_ID || '1';
+        const videos = await searchVideos(keywords || 'abstract technology', 10);
 
-        const response = await axios.get('https://api.storyblocks.com/api/v2/videos/search', {
-            params: {
-                APIKEY,
-                EXPIRES,
-                HMAC,
-                project_id,
-                user_id,
-                keywords: keywords || 'abstract technology',
-                content_type: content_type || 'motion-backgrounds'
-            }
-        });
+        if (videos && videos.length > 0) {
+            // Map to video files (using the highest quality or specific width/height if needed)
+            // Pexels returns 'video_files'. We can pick one.
+            // Let's return the image (thumbnail) for now if the frontend expects images, 
+            // OR return the video link if the frontend plays video.
+            // The original logic returned "thumbnail_url || preview_url".
+            // Pexels has 'image' (thumbnail) and 'video_files' (actual video).
+            // Let's return the image for consistency with the component name 'BackgroundImage',
+            // but if the user wants "VIDEO background", we might want the video file.
+            // The user request said "prendere i video di background".
+            // So we should probably return video URLs.
+            // However, the original code returned "thumbnail_url" most of the time.
+            // I will return an object or string. The original was simple strings.
+            // Let's return the video file link (HD if available).
 
-        // Extract relevant data (e.g., thumbnail or preview URL)
-        // Storyblocks API response structure needs checking, assuming results[].thumbnail_url or similar
-        // For now, mapping to preview_urls or similar based on typical stock API
-        // Actually, looking at docs, it might be 'results' array.
+            const results = videos.map(video => {
+                // Find a good quality file, e.g., hd
+                const vidFile = video.video_files.find(f => f.quality === 'hd') || video.video_files[0];
+                return vidFile ? vidFile.link : video.image;
+            });
 
-        if (response.data && response.data.results) {
-            const images = response.data.results.map(item => item.thumbnail_url || item.preview_url || item.stock_item.thumbnail_url);
-            res.json(images);
+            res.json(results);
         } else {
-            res.json([]);
+            res.json(fallbacks);
         }
 
     } catch (error) {
-        console.error('Storyblocks API Error:', error.response ? error.response.data : error.message);
-        // Fallback on error
+        console.error('Pexels Controller Error:', error.message);
         res.json([
             "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80",
             "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80"

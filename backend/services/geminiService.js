@@ -4,40 +4,62 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const getGeminiResponse = async (history, message) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
-        // 1. Generate Chat Response
-        const chat = model.startChat({
-            history: history.map(msg => ({
-                role: msg.role === 'client' ? 'user' : 'model', // Map DB/Client roles to Gemini roles
-                parts: [{ text: msg.content }]
-            }))
+        // 1. Generate Chat Response (Stateless but with history)
+        // Construct the full conversation history for the "contents" parameter
+        const contents = history.map(msg => ({
+            role: msg.role === 'client' ? 'user' : 'model', // Map DB/Client roles to Gemini roles
+            parts: [{ text: msg.content }]
+        }));
+
+        // Add the new user message
+        contents.push({
+            role: 'user',
+            parts: [{ text: message }]
         });
 
-        const result = await chat.sendMessage(message);
+        console.log("Gemini Contents:", contents);
+
+        const result = await model.generateContent({ contents });
         const responseText = result.response.text();
 
         // 2. Extract Mood and Keywords (Separate prompt or combined if complex, simple prompt here)
         // Using a separate call for cleaner structured output specifically for Storyblocks
-        const analysisModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
+        const analysisModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite', generationConfig: { responseMimeType: "application/json" } });
         const analysisPrompt = `
-      Analyze the following user message and conversation context to determine the "mood" and relevant "keywords" for a video background search.
+      Analyze the following user message and conversation context to determine the "mood", relevant "keywords" for a video background search, and a "theme" (colors and font) that matches the mood.
       User Message: "${message}"
       Context Summary: ${responseText.substring(0, 100)}...
       
-      Return JSON: { "mood": "string", "keywords": "string" }
-      Example: { "mood": "happy", "keywords": "nature, sun, flowers" }
+      Return JSON: { 
+        "mood": "string", 
+        "keywords": "string",
+        "theme": {
+            "primaryColor": "hex color string (e.g. #ff0000)",
+            "secondaryColor": "hex color string",
+            "accentColor": "hex color string",
+            "fontFamily": "string (sans-serif, serif, monospace, or a specific google font name if common)"
+        }
+      }
+      Example: { 
+        "mood": "happy", 
+        "keywords": "nature, sun, flowers",
+        "theme": { "primaryColor": "#FFD700", "secondaryColor": "#87CEEB", "accentColor": "#FFFFFF", "fontFamily": "sans-serif" }
+      }
     `;
 
         const analysisResult = await analysisModel.generateContent(analysisPrompt);
         const analysisJson = await analysisResult.response.text();
-        let analysis = { mood: 'neutral', keywords: 'abstract' };
+        let analysis = { mood: 'neutral', keywords: 'abstract', theme: null };
 
         try {
             analysis = JSON.parse(analysisJson);
         } catch (e) {
             console.error("Failed to parse Gemini analysis JSON", e);
         }
+
+        console.log("Gemini Analysis:", analysis);
 
         return {
             text: responseText,
@@ -52,7 +74,7 @@ export const getGeminiResponse = async (history, message) => {
 
 export const translateContent = async (content, targetLanguage) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: "application/json" } });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite', generationConfig: { responseMimeType: "application/json" } });
 
         const prompt = `
             You are a professional translator. 

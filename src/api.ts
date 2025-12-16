@@ -62,7 +62,7 @@ export const getBackgroundImages = async (keywords?: string, content_type?: stri
     return response.json();
 };
 
-export const sendMessage = async (sessionId: string, message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null }> => {
+export const sendMessage = async (sessionId: string, message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null; theme?: any }> => {
     const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {

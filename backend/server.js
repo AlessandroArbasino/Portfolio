@@ -166,12 +166,15 @@ const seedData = async () => {
                 name: 'Alessandro Arbasino',
                 title: 'Full Stack Developer',
                 description: 'Sviluppatore appassionato con esperienza in React, Node.js e architetture cloud. Amo trasformare idee complesse in interfacce utente intuitive e scalabili.',
+                greeting: 'Ciao, sono Alessandro! ',
                 imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // Placeholder
                 socialLinks: {
                     github: 'https://github.com/mario-rossi',
                     linkedin: 'https://linkedin.com/in/mario-rossi'
                 },
                 cvUrl: '/assets/cv.pdf',
+                experienceYears: 3,
+                completedProjects: 12,
                 skills: [
                     { name: 'React', level: 90 },
                     { name: 'Node.js', level: 85 },

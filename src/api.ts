@@ -93,12 +93,22 @@ export interface Skill {
     icon?: string;
 }
 
+export interface Competence {
+    title: string;
+    description: string;
+    icon?: string;
+}
+
 export interface PersonalProfile {
     name: string;
     title: string;
     description: string;
+    greeting?: string;
     imageUrl?: string;
+    experienceYears?: number;
+    completedProjects?: number;
     skills: Skill[];
+    competences?: Competence[];
     socialLinks?: {
         github?: string;
         linkedin?: string;

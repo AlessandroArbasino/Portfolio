@@ -6,11 +6,18 @@ const skillSchema = new mongoose.Schema({
     icon: String // Optional: URL or icon name
 });
 
+const competenceSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String } // Optional: icon identifier
+});
+
 const personalProfileSchema = new mongoose.Schema({
     language: { type: String, required: true, default: 'it' },
     name: { type: String, required: true },
     title: { type: String, required: true }, // e.g., "Full Stack Developer"
     description: { type: String, required: true }, // Bio
+    greeting: { type: String },
     imageUrl: { type: String }, // Profile picture
     socialLinks: {
         github: String,
@@ -18,7 +25,10 @@ const personalProfileSchema = new mongoose.Schema({
         twitter: String
     },
     cvUrl: String,
-    skills: [skillSchema]
+    experienceYears: { type: Number },
+    completedProjects: { type: Number },
+    skills: [skillSchema],
+    competences: [competenceSchema]
 }, { timestamps: true });
 
 // Ensure only one profile per language exists

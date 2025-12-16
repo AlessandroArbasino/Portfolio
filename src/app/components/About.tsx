@@ -2,38 +2,65 @@ import { motion } from 'motion/react';
 import { Code2, Database, Layout, Briefcase, Award, GraduationCap } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { ImageWithFallback } from './figma/ImageWithFallback'; // Assuming it's a named export, checking the file would confirm but standard pattern is likely named or default. I'll check usage in Projects.tsx if I fail, but I'll assume named for now based on typical patterns or 'export function'.
+import { useEffect, useMemo, useState } from 'react';
+import { fetchProfile, PersonalProfile } from '../../api';
 
 export function About() {
-  const { fixedTexts } = useLanguage();
+  const { fixedTexts, language } = useLanguage();
   const t = fixedTexts?.about;
 
-  const skills = [
-    {
-      icon: <Layout size={24} />,
-      title: 'Frontend',
-      description: 'React, TypeScript, Tailwind CSS',
-    },
-    {
-      icon: <Database size={24} />,
-      title: 'Backend',
-      description: 'Node.js, Express, PostgreSQL',
-    },
-    {
-      icon: <Code2 size={24} />,
-      title: 'Tools',
-      description: 'Git, Docker, REST API',
-    },
-  ];
+  const [profile, setProfile] = useState<PersonalProfile | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const highlights = [
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchProfile(language)
+      .then((data) => setProfile(data))
+      .catch((e) => setError(e?.message || 'Failed to load profile'))
+      .finally(() => setLoading(false));
+  }, [language]);
+
+  const skills = useMemo(() => {
+    if (profile?.competences && profile.competences.length > 0) {
+      return profile.competences.map((c) => ({
+        icon: c.icon === 'layout' ? <Layout size={24} />
+             : c.icon === 'database' ? <Database size={24} />
+             : c.icon === 'code' ? <Code2 size={24} />
+             : <Code2 size={24} />,
+        title: c.title,
+        description: c.description,
+      }));
+    }
+    return [
+      {
+        icon: <Layout size={24} />,
+        title: 'Frontend',
+        description: 'React, TypeScript, Tailwind CSS',
+      },
+      {
+        icon: <Database size={24} />,
+        title: 'Backend',
+        description: 'Node.js, Express, PostgreSQL',
+      },
+      {
+        icon: <Code2 size={24} />,
+        title: 'Tools',
+        description: 'Git, Docker, REST API',
+      },
+    ];
+  }, [profile]);
+
+  const highlights = useMemo(() => [
     {
       icon: <Briefcase size={20} />,
-      title: t?.years || 'Years',
+      title: (profile?.experienceYears != null ? String(profile.experienceYears) : (t?.years || 'Years')),
       description: t?.experience || 'Experience',
     },
     {
       icon: <Award size={20} />,
-      title: t?.projects || 'Projects',
+      title: (profile?.completedProjects != null ? String(profile.completedProjects) : (t?.projects || 'Projects')),
       description: t?.completed || 'Completed',
     },
     {
@@ -41,7 +68,7 @@ export function About() {
       title: t?.training || 'Training',
       description: t?.continuous || 'Continuous',
     },
-  ];
+  ], [profile, t]);
 
   return (
     <section id="about" className="min-h-screen flex flex-col justify-center px-4 py-16">
@@ -68,7 +95,7 @@ export function About() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl blur-2xl"></div>
               <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border-2 border-white/10">
                 <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1737575655055-e3967cbefd03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjU4Mjk4OTB8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src={profile?.imageUrl || "https://images.unsplash.com/photo-1737575655055-e3967cbefd03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjU4Mjk4OTB8MA&ixlib=rb-4.1.0&q=80&w=1080"}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -83,12 +110,12 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="flex flex-col justify-center"
           >
-            <h3 className="text-white mb-4">{t?.greeting || 'Hello there!'}</h3>
+            <h3 className="text-white mb-4">{profile?.greeting || t?.greeting || 'Hello there!'}</h3>
             <p className="text-white/70 mb-4 leading-relaxed">
-              {t?.description1 || 'I am a passionate developer...'}
+              {profile?.description || t?.description1 || 'I am a passionate developer...'}
             </p>
             <p className="text-white/70 mb-6 leading-relaxed">
-              {t?.description2 || 'I love creating...'}
+              {t?.description2 || ''}
             </p>
 
             {/* Highlights */}

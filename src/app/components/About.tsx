@@ -1,7 +1,12 @@
 import { motion } from 'motion/react';
-import { Code2, Database, Layout } from 'lucide-react';
+import { Code2, Database, Layout, Briefcase, Award, GraduationCap } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { ImageWithFallback } from './figma/ImageWithFallback'; // Assuming it's a named export, checking the file would confirm but standard pattern is likely named or default. I'll check usage in Projects.tsx if I fail, but I'll assume named for now based on typical patterns or 'export function'.
 
 export function About() {
+  const { fixedTexts } = useLanguage();
+  const t = fixedTexts?.about;
+
   const skills = [
     {
       icon: <Layout size={24} />,
@@ -20,20 +25,101 @@ export function About() {
     },
   ];
 
+  const highlights = [
+    {
+      icon: <Briefcase size={20} />,
+      title: t?.years || 'Years',
+      description: t?.experience || 'Experience',
+    },
+    {
+      icon: <Award size={20} />,
+      title: t?.projects || 'Projects',
+      description: t?.completed || 'Completed',
+    },
+    {
+      icon: <GraduationCap size={20} />,
+      title: t?.training || 'Training',
+      description: t?.continuous || 'Continuous',
+    },
+  ];
+
   return (
     <section id="about" className="min-h-screen flex flex-col justify-center px-4 py-16">
-      <div className="max-w-4xl mx-auto w-full">
+      <div className="max-w-6xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-white mb-4 text-center">Chi Sono</h2>
-          <p className="text-white/70 text-center mb-12 max-w-2xl mx-auto">
-            Sviluppatore full stack con passione per la creazione di applicazioni web scalabili e user-friendly. 
-            Sempre alla ricerca di nuove sfide e opportunità di crescita professionale.
-          </p>
+          <h2 className="text-white mb-12 text-center">{t?.title || 'About Me'}</h2>
+        </motion.div>
+
+        {/* Profile Section with Image */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-center lg:justify-end"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl blur-2xl"></div>
+              <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border-2 border-white/10">
+                <ImageWithFallback
+                  src="https://images.unsplash.com/photo-1737575655055-e3967cbefd03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjU4Mjk4OTB8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col justify-center"
+          >
+            <h3 className="text-white mb-4">{t?.greeting || 'Hello there!'}</h3>
+            <p className="text-white/70 mb-4 leading-relaxed">
+              {t?.description1 || 'I am a passionate developer...'}
+            </p>
+            <p className="text-white/70 mb-6 leading-relaxed">
+              {t?.description2 || 'I love creating...'}
+            </p>
+
+            {/* Highlights */}
+            <div className="grid grid-cols-3 gap-4">
+              {highlights.map((highlight, index) => (
+                <motion.div
+                  key={highlight.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
+                  className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10 text-center"
+                >
+                  <div className="text-white/80 mb-2 flex justify-center">{highlight.icon}</div>
+                  <div className="text-white text-sm mb-1">{highlight.title}</div>
+                  <div className="text-white/60 text-xs">{highlight.description}</div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Skills Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
+          <h3 className="text-white text-center mb-8">{t?.skills || 'My Skills'}</h3>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

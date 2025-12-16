@@ -27,10 +27,21 @@ export interface Project {
 }
 
 export interface FixedTexts {
-    hero: {
+    title: string;
+    subtitle: string;
+    description: string;
+    about: {
         title: string;
-        subtitle: string;
-        description: string;
+        greeting: string;
+        description1: string;
+        description2: string;
+        years: string;
+        experience: string;
+        projects: string;
+        completed: string;
+        training: string;
+        continuous: string;
+        skills: string;
     };
 }
 
@@ -73,6 +84,33 @@ export const sendMessage = async (sessionId: string, message: string): Promise<{
     if (!response.ok) {
         throw new Error('Failed to send message');
     }
+    return response.json();
+};
+
+export interface Skill {
+    name: string;
+    level: number;
+    icon?: string;
+}
+
+export interface PersonalProfile {
+    name: string;
+    title: string;
+    description: string;
+    imageUrl?: string;
+    skills: Skill[];
+    socialLinks?: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+    };
+    cvUrl?: string;
+}
+
+export const fetchProfile = async (lang: string = 'it'): Promise<PersonalProfile> => {
+    const API_BASE_URL = '';
+    const response = await fetch(`${API_BASE_URL}/api/profile?lang=${lang}`);
+    if (!response.ok) throw new Error('Failed to fetch profile');
     return response.json();
 };
 

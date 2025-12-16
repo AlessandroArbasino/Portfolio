@@ -6,9 +6,11 @@ import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import translateRoutes from './routes/translateRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
 import BackgroundImage from './models/BackgroundImage.js';
+import PersonalProfile from './models/PersonalProfile.js';
 
 dotenv.config();
 
@@ -26,6 +28,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api', contentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/translate', translateRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Seeder Logic (Run once if DB is empty)
 const seedData = async () => {
@@ -129,6 +132,22 @@ const seedData = async () => {
                     description: "Creo esperienze web moderne e performanti. Appassionato di tecnologia e sempre pronto ad imparare."
                 }
             });
+            await FixedText.create({
+                section: 'about',
+                content: {
+                    title: "Chi Sono",
+                    greeting: "Ciao, sono Alessandro!",
+                    description1: "Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.",
+                    description2: "Quando non scrivo codice, mi trovi a esplorare nuove tecnologie, contribuire a progetti open source o semplicemente a godermi un buon caffè.",
+                    years: "Anni",
+                    experience: "di Esperienza",
+                    projects: "Progetti",
+                    completed: "Completati",
+                    training: "Formazione",
+                    continuous: "Continua",
+                    skills: "Le Mie Skills"
+                }
+            });
         }
 
         const imgCount = await BackgroundImage.countDocuments();
@@ -138,6 +157,29 @@ const seedData = async () => {
                 { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80" },
                 { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80" }
             ]);
+        }
+
+        const profileCount = await PersonalProfile.countDocuments();
+        if (profileCount === 0) {
+            await PersonalProfile.create({
+                language: 'it',
+                name: 'Alessandro Arbasino',
+                title: 'Full Stack Developer',
+                description: 'Sviluppatore appassionato con esperienza in React, Node.js e architetture cloud. Amo trasformare idee complesse in interfacce utente intuitive e scalabili.',
+                imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // Placeholder
+                socialLinks: {
+                    github: 'https://github.com/mario-rossi',
+                    linkedin: 'https://linkedin.com/in/mario-rossi'
+                },
+                cvUrl: '/assets/cv.pdf',
+                skills: [
+                    { name: 'React', level: 90 },
+                    { name: 'Node.js', level: 85 },
+                    { name: 'TypeScript', level: 80 },
+                    { name: 'MongoDB', level: 75 },
+                    { name: 'TailwindCSS', level: 95 }
+                ]
+            });
         }
     } catch (err) {
         console.error("Seeding error:", err);

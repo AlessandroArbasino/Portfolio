@@ -9,6 +9,8 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
 
+import { PersonalIntro } from './components/PersonalIntro';
+
 export default function App() {
   const [forcedBackground, setForcedBackground] = useState<string | null>(null);
 
@@ -25,6 +27,7 @@ export default function App() {
           {/* Main Content */}
           <main className="relative z-10">
             <Hero />
+            <PersonalIntro />
             <About />
             <Projects />
             <Contact />

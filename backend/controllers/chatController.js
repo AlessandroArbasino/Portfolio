@@ -1,4 +1,5 @@
 import ChatSession from '../models/ChatSession.js';
+import FixedText from '../models/FixedText.js';
 import { getGeminiResponse } from '../services/geminiService.js';
 import axios from 'axios';
 import { searchVideos } from '../utils/pexels.js';
@@ -93,10 +94,21 @@ export const getChatHistory = async (req, res) => {
         // 1. Retrieve or Create Session
         let session = await ChatSession.findOne({ sessionId });
         if (!session) {
+            // Fetch initial message from DB (default to Italian or fallback)
+            let initialMsg = 'Ciao! Come posso aiutarti oggi?';
+            try {
+                const fixed = await FixedText.findOne({ section: 'chat', language: 'it' });
+                if (fixed && fixed.content && fixed.content.get('initialMessage')) {
+                    initialMsg = fixed.content.get('initialMessage');
+                }
+            } catch (e) {
+                console.error('Failed to fetch initial chat message:', e);
+            }
+
             session = await ChatSession.create({
                 sessionId,
                 messages: [
-                    { role: 'assistant', content: process.env.CHATBOT_WELCOME || 'Hello! How can I help you today?' }
+                    { role: 'assistant', content: initialMsg }
                 ]
             });
         }

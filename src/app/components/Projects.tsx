@@ -14,7 +14,8 @@ export function Projects() {
   const [expandedSubProject, setExpandedSubProject] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
+  const { language, fixedTexts } = useLanguage();
+  const t = fixedTexts?.projects;
 
   useEffect(() => {
     setLoading(true);
@@ -61,9 +62,9 @@ export function Projects() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-white mb-4 text-center">Progetti</h2>
+          <h2 className="text-white mb-4 text-center">{t?.title || 'Progetti'}</h2>
           <p className="text-white/70 text-center mb-12">
-            Alcuni dei progetti su cui ho lavorato
+            {t?.subtitle || 'Alcuni dei progetti su cui ho lavorato'}
           </p>
         </motion.div>
 

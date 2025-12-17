@@ -2,18 +2,44 @@ import FixedText from '../models/FixedText.js';
 import BackgroundImage from '../models/BackgroundImage.js';
 import { searchVideos } from '../utils/pexels.js';
 
+const chatTextsIT = {}; // Deprecated in favor of DB
+const chatTextsEN = {}; // Deprecated in favor of DB
+const contactTextsIT = {}; // Deprecated in favor of DB
+const contactTextsEN = {}; // Deprecated in favor of DB
+
 // @desc    Get fixed texts
 // @route   GET /api/fixed-texts
 export const getFixedTexts = async (req, res) => {
     try {
         const { lang } = req.query;
-        const texts = await FixedText.findOne({ section: 'hero', language: lang || 'it' });
-        if (texts) {
-            res.json({ hero: texts.content });
-        } else {
-            // Return default/empty if not in DB yet, or seed it
-            res.json({ hero: {} });
-        }
+        const targetLang = lang || 'it';
+
+        // Helper to get section with fallback
+        const getSection = async (sectionName) => {
+            let doc = await FixedText.findOne({ section: sectionName, language: targetLang });
+
+            // Fallback to Italian if target lang not found
+            if (!doc && targetLang !== 'it') {
+                doc = await FixedText.findOne({ section: sectionName, language: 'it' });
+            }
+
+            return doc ? doc.content : {};
+        };
+
+        const heroContent = await getSection('hero');
+        const chatContent = await getSection('chat');
+        const aboutContent = await getSection('about');
+        const contactContent = await getSection('contact');
+        const projectsContent = await getSection('projects');
+
+        res.json({
+            hero: heroContent,
+            chat: chatContent,
+            about: aboutContent,
+            contact: contactContent,
+            projects: projectsContent
+        });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

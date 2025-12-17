@@ -23,7 +23,7 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { language } = useLanguage();
+  const { language, fixedTexts } = useLanguage();
   const { updateTheme, theme } = useTheme();
 
   // Restore history sync effect
@@ -37,9 +37,10 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
   useEffect(() => {
     // Mostra il tooltip dopo che il loading è completato
     if (showWelcome) {
+      // Sync with button delay (1s)
       const timer = setTimeout(() => {
         setShowTooltip(true);
-      }, 500);
+      }, 1000);
 
       // Nascondi il tooltip dopo 10 secondi
       const hideTimer = setTimeout(() => {
@@ -91,14 +92,14 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
     }
   };
 
-  const translations = {
-    tooltipTitle: language === 'it' ? 'Assistente AI' : 'AI Assistant',
-    tooltipDesc: language === 'it' ? 'Posso personalizzare il sito per te!' : 'I can customize the site for you!',
-    chatTitle: language === 'it' ? 'Assistente AI' : 'AI Assistant',
-    welcome: language === 'it' ? 'Ciao! Chiedimi di modificare la moodboard del sito.' : 'Hi! Ask me to change the site moodboard.',
-    placeholder: language === 'it' ? 'Scrivi un messaggio...' : 'Type a message...',
-    send: language === 'it' ? 'Invia' : 'Send',
-    subtitle: language === 'it' ? 'Chiedimi di modificare la moodboard del sito' : 'Ask me to change the site moodboard'
+  const translations = fixedTexts?.chat || {
+    tooltipTitle: 'AI Assistant',
+    tooltipDesc: 'I can customize the site for you!',
+    chatTitle: 'AI Assistant',
+    welcome: 'Hi! Ask me to change the site moodboard.',
+    placeholder: 'Type a message...',
+    send: 'Send',
+    subtitle: 'Ask me to change the site moodboard'
   };
 
   // Dynamic Styles

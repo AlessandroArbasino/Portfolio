@@ -147,33 +147,55 @@ const seedData = async () => {
             await Project.insertMany(projects);
         }
 
-        const textCount = await FixedText.countDocuments();
-        if (textCount === 0) {
-            await FixedText.create({
-                section: 'hero',
-                content: {
-                    title: "Mario Rossi",
-                    subtitle: "Junior Full Stack Developer",
-                    description: "Creo esperienze web moderne e performanti. Appassionato di tecnologia e sempre pronto ad imparare."
-                }
-            });
-            await FixedText.create({
-                section: 'about',
-                content: {
-                    title: "Chi Sono",
-                    greeting: "Ciao, sono Alessandro!",
-                    description1: "Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.",
-                    description2: "Quando non scrivo codice, mi trovi a esplorare nuove tecnologie, contribuire a progetti open source o semplicemente a godermi un buon caffè.",
-                    years: "Anni",
-                    experience: "di Esperienza",
-                    projects: "Progetti",
-                    completed: "Completati",
-                    training: "Formazione",
-                    continuous: "Continua",
-                    skills: "Le Mie Skills"
-                }
-            });
-        }
+        const seedSection = async (section, content) => {
+            const exists = await FixedText.findOne({ section, language: 'it' });
+            if (!exists) {
+                await FixedText.create({ section, language: 'it', content });
+                console.log(`Seeded ${section}`);
+            }
+        };
+
+        await seedSection('hero', {
+            title: "Mario Rossi",
+            subtitle: "Junior Full Stack Developer",
+            description: "Creo esperienze web moderne e performanti. Appassionato di tecnologia e sempre pronto ad imparare."
+        });
+
+        await seedSection('about', {
+            title: "Chi Sono",
+            greeting: "Ciao, sono Alessandro!",
+            description1: "Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.",
+            description2: "Quando non scrivo codice, mi trovi a esplorare nuove tecnologie, contribuire a progetti open source o semplicemente a godermi un buon caffè.",
+            years: "Anni",
+            experience: "di Esperienza",
+            projects: "Progetti",
+            completed: "Completati",
+            training: "Formazione",
+            continuous: "Continua",
+            skills: "Le Mie Skills"
+        });
+
+        await seedSection('chat', {
+            tooltipTitle: 'Assistente AI',
+            tooltipDesc: 'Posso personalizzare il sito per te!',
+            chatTitle: 'Assistente AI',
+            welcome: 'Ciao! Chiedimi di modificare la moodboard del sito.',
+            initialMessage: 'Ciao! Come posso aiutarti oggi?',
+            placeholder: 'Scrivi un messaggio...',
+            send: 'Invia',
+            subtitle: 'Chiedimi di modificare la moodboard del sito'
+        });
+
+        await seedSection('contact', {
+            title: 'Contatti',
+            subtitle: 'Interessato a collaborare? Contattiamoci!',
+            copyright: '© 2024 Alessandro Arbasino. Tutti i diritti riservati.'
+        });
+
+        await seedSection('projects', {
+            title: 'Progetti',
+            subtitle: 'Alcuni dei progetti su cui ho lavorato'
+        });
 
         const imgCount = await BackgroundImage.countDocuments();
         if (imgCount === 0) {

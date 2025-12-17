@@ -30,6 +30,16 @@ export interface FixedTexts {
     title: string;
     subtitle: string;
     description: string;
+    hero?: Record<string, string>; // Made optional/generic as structure varies
+    chat: {
+        tooltipTitle: string;
+        tooltipDesc: string;
+        chatTitle: string;
+        welcome: string;
+        placeholder: string;
+        send: string;
+        subtitle: string;
+    };
     about: {
         title: string;
         greeting: string;
@@ -42,6 +52,15 @@ export interface FixedTexts {
         training: string;
         continuous: string;
         skills: string;
+    };
+    contact: {
+        title: string;
+        subtitle: string;
+        copyright: string;
+    };
+    projects: {
+        title: string;
+        subtitle: string;
     };
 }
 

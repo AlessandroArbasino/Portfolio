@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -16,6 +16,8 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
   const [message, setMessage] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
   const [showBadge, setShowBadge] = useState(true);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Logic from previous version
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([
@@ -53,6 +55,26 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
       };
     }
   }, [showWelcome]);
+
+  // Click outside to close effect
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        chatRef.current &&
+        !chatRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleOpen = () => {
     setIsOpen(!isOpen);
@@ -232,6 +254,7 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
 
         {/* Main button */}
         <motion.button
+          ref={buttonRef}
           onClick={handleOpen}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -273,6 +296,7 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ duration: 0.3 }}
+            ref={chatRef}
             className="fixed bottom-24 right-6 z-40 w-[calc(100vw-3rem)] max-w-md"
             style={fontStyle}
           >

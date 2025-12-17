@@ -7,10 +7,13 @@ import contentRoutes from './routes/contentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import translateRoutes from './routes/translateRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
+import languageRoutes from './routes/languageRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
 import BackgroundImage from './models/BackgroundImage.js';
 import PersonalProfile from './models/PersonalProfile.js';
+import Language from './models/Language.js';
 
 dotenv.config();
 
@@ -29,6 +32,8 @@ app.use('/api', contentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/translate', translateRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/languages', languageRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Seeder Logic (Run once if DB is empty)
 const seedData = async () => {
@@ -156,6 +161,16 @@ const seedData = async () => {
                 { url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80" },
                 { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80" },
                 { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80" }
+            ]);
+        }
+
+        const langCount = await Language.countDocuments();
+        if (langCount === 0) {
+            await Language.insertMany([
+                { id: 'it', text: 'IT-it' },
+                { id: 'en', text: 'EN-en' },
+                { id: 'es', text: 'ES-es' },
+                { id: 'fr', text: 'FR-fr' }
             ]);
         }
 

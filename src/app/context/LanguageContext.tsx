@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getFixedTexts, FixedTexts } from '../../api';
 
-export type Language = 'en' | 'it' | 'es' | 'fr' | 'de';
+export type Language = string;
 
 interface LanguageContextType {
     language: Language;

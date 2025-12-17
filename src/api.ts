@@ -45,6 +45,21 @@ export interface FixedTexts {
     };
 }
 
+export interface ContactItem {
+    id: string;
+    label: string;
+    value: string;
+    href: string;
+}
+
+export const getContact = async (): Promise<ContactItem[]> => {
+    const response = await fetch('/api/contact');
+    if (!response.ok) {
+        throw new Error('Failed to fetch contact');
+    }
+    return response.json();
+};
+
 export const getProjects = async (lang: string = 'it'): Promise<Project[]> => {
     const response = await fetch(`/api/projects?lang=${lang}`);
     if (!response.ok) {
@@ -57,6 +72,20 @@ export const getFixedTexts = async (lang: string = 'it'): Promise<FixedTexts> =>
     const response = await fetch(`/api/fixed-texts?lang=${lang}`);
     if (!response.ok) {
         throw new Error('Failed to fetch texts');
+    }
+    return response.json();
+};
+
+export interface LanguageDto {
+    _id: string;
+    id: string; // code, e.g., 'it', 'en'
+    text: string; // display text, e.g., 'IT-it'
+}
+
+export const getLanguages = async (): Promise<LanguageDto[]> => {
+    const response = await fetch('/api/languages');
+    if (!response.ok) {
+        throw new Error('Failed to fetch languages');
     }
     return response.json();
 };

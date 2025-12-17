@@ -22,6 +22,27 @@ export const processChat = async (req, res) => {
             });
         }
 
+        // Optional UI customization from FE
+        const {
+            backgroundUrls: incomingBackgroundUrls,
+            primaryColor,
+            secondaryColor,
+            accentColor,
+            backgroundColor,
+            textColor,
+            fontFamily
+        } = req.body || {};
+
+        if (incomingBackgroundUrls && Array.isArray(incomingBackgroundUrls)) {
+            session.backgroundUrls = incomingBackgroundUrls;
+        }
+        if (primaryColor !== undefined) session.primaryColor = primaryColor;
+        if (secondaryColor !== undefined) session.secondaryColor = secondaryColor;
+        if (accentColor !== undefined) session.accentColor = accentColor;
+        if (backgroundColor !== undefined) session.backgroundColor = backgroundColor;
+        if (textColor !== undefined) session.textColor = textColor;
+        if (fontFamily !== undefined) session.fontFamily = fontFamily;
+
         // 2. Get Gemini Response (Stateless with History)
         // Pass recent history (e.g., last 10 messages)
         const history = session.messages.slice(-10);
@@ -30,7 +51,7 @@ export const processChat = async (req, res) => {
         // 3. Save Messages to DB
         session.messages.push({ role: 'user', content: message });
         session.messages.push({ role: 'assistant', content: aiResult.text });
-        await session.save();
+        session.lastMessageAt = new Date();
 
         // 4. Fetch Background Image/Video based on Keywords (Pexels)
         let backgroundUrl = null;
@@ -47,18 +68,35 @@ export const processChat = async (req, res) => {
                     backgroundUrl = vidFile ? vidFile.link : random.image;
 
                     console.log("Background URL:", backgroundUrl);
+                    // Persist the most recent background URL(s)
+                    if (backgroundUrl) {
+                        if (!Array.isArray(session.backgroundUrls)) session.backgroundUrls = [];
+                        if (session.backgroundUrls[0] !== backgroundUrl) {
+                            session.backgroundUrls.unshift(backgroundUrl);
+                            session.backgroundUrls = session.backgroundUrls.slice(0, 10);
+                        }
+                    }
                 }
             } catch (pexError) {
                 console.error('Pexels Search Error in Chat:', pexError.message);
             }
         }
 
+        await session.save();
+
         res.json({
             response: aiResult.text,
             mood: aiResult.mood,
             keywords: aiResult.keywords,
             theme: aiResult.theme,
-            backgroundUrl
+            backgroundUrl,
+            backgroundUrls: session.backgroundUrls || [],
+            primaryColor: session.primaryColor,
+            secondaryColor: session.secondaryColor,
+            accentColor: session.accentColor,
+            backgroundColor: session.backgroundColor,
+            textColor: session.textColor,
+            fontFamily: session.fontFamily
         });
 
     } catch (error) {
@@ -83,7 +121,16 @@ export const getChatHistory = async (req, res) => {
             });
         }
 
-        res.json(session.messages);
+        res.json({
+            messages: session.messages,
+            backgroundUrls: session.backgroundUrls || [],
+            primaryColor: session.primaryColor,
+            secondaryColor: session.secondaryColor,
+            accentColor: session.accentColor,
+            backgroundColor: session.backgroundColor,
+            textColor: session.textColor,
+            fontFamily: session.fontFamily
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

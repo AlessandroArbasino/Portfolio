@@ -1,27 +1,29 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Linkedin, Github } from 'lucide-react';
+import { getContact, ContactItem } from '../../api';
+
+function iconFor(id: string) {
+  switch (id) {
+    case 'email':
+      return <Mail size={24} />;
+    case 'linkedin':
+      return <Linkedin size={24} />;
+    case 'github':
+      return <Github size={24} />;
+    default:
+      return <Mail size={24} />;
+  }
+}
 
 export function Contact() {
-  const contacts = [
-    {
-      icon: <Mail size={24} />,
-      label: 'Email',
-      value: 'mario.rossi@email.com',
-      href: 'mailto:mario.rossi@email.com',
-    },
-    {
-      icon: <Linkedin size={24} />,
-      label: 'LinkedIn',
-      value: 'linkedin.com/in/mariorossi',
-      href: 'https://linkedin.com',
-    },
-    {
-      icon: <Github size={24} />,
-      label: 'GitHub',
-      value: 'github.com/mariorossi',
-      href: 'https://github.com',
-    },
-  ];
+  const [contacts, setContacts] = useState<ContactItem[]>([]);
+
+  useEffect(() => {
+    getContact()
+      .then((items) => setContacts(items))
+      .catch(() => setContacts([]));
+  }, []);
 
   return (
     <section id="contact" className="min-h-screen flex flex-col justify-center px-4 py-16">
@@ -52,7 +54,7 @@ export function Contact() {
               className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all group"
             >
               <div className="text-white/80 group-hover:text-white transition-colors mb-4">
-                {contact.icon}
+                {iconFor(contact.id)}
               </div>
               <h3 className="text-white mb-2">{contact.label}</h3>
               <p className="text-white/60 text-sm break-all">{contact.value}</p>
@@ -68,7 +70,7 @@ export function Contact() {
           className="text-center mt-12"
         >
           <p className="text-white/40 text-sm">
-            © 2024 Mario Rossi. Tutti i diritti riservati.
+            © 2024 Alessandro Arbasino. Tutti i diritti riservati.
           </p>
         </motion.div>
       </div>

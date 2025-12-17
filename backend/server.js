@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
 import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
@@ -23,13 +24,31 @@ const PORT = 3001;
 // Connect to Database
 connectDB();
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
+
+// Session cookie middleware for chat endpoints
+function ensureSessionCookie(req, res, next) {
+    const COOKIE_NAME = 'chat_session_id';
+    let sid = req.cookies?.[COOKIE_NAME];
+    if (!sid) {
+        sid = 'session-' + Math.random().toString(36).substr(2, 9);
+        res.cookie(COOKIE_NAME, sid, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false,
+            path: '/',
+        });
+    }
+    req.sessionId = sid;
+    next();
+}
 
 // Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api', contentRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/chat', ensureSessionCookie, chatRoutes);
 app.use('/api/translate', translateRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);

@@ -5,6 +5,8 @@ export interface Theme {
     secondaryColor: string;
     accentColor: string;
     fontFamily: string;
+    backgroundColor?: string;
+    textColor?: string;
 }
 
 interface ThemeContextType {
@@ -53,6 +55,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         if (theme.fontFamily) {
             root.style.setProperty('--font-family-sans', theme.fontFamily);
             document.body.style.fontFamily = theme.fontFamily;
+        }
+
+        if (theme.backgroundColor) {
+            // Apply background color globally
+            document.body.style.backgroundColor = theme.backgroundColor;
+            root.style.setProperty('--background', theme.backgroundColor);
+        }
+
+        if (theme.textColor) {
+            // Apply text color globally
+            document.body.style.color = theme.textColor;
+            root.style.setProperty('--foreground', theme.textColor);
         }
     };
 

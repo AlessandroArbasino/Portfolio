@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema({
 const chatSessionSchema = new mongoose.Schema({
     sessionId: { type: String, required: true, unique: true }, // Could be IP or generated UUID
     lastMessageAt: { type: Date, default: Date.now },
-    backgroundUrls: [{ type: String }],
+    backgroundUrl: { type: String },
     primaryColor: { type: String },
     secondaryColor: { type: String },
     accentColor: { type: String },

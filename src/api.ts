@@ -102,13 +102,14 @@ export const getBackgroundImages = async (keywords?: string, content_type?: stri
     return response.json();
 };
 
-export const sendMessage = async (sessionId: string, message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null; theme?: any }> => {
+export const sendMessage = async (message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null; theme?: any }> => {
     const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sessionId, message }),
+        credentials: 'include',
+        body: JSON.stringify({ message }),
     });
     if (!response.ok) {
         throw new Error('Failed to send message');
@@ -153,8 +154,17 @@ export const fetchProfile = async (lang: string = 'it'): Promise<PersonalProfile
     return response.json();
 };
 
-export const fetchChatHistory = async (sessionId: string): Promise<{ role: 'user' | 'assistant'; content: string }[]> => {
-    const response = await fetch(`/api/chat/${sessionId}`);
+export const fetchChatHistory = async (): Promise<{
+    messages: { role: 'user' | 'assistant'; content: string }[];
+    backgroundUrl?: string | null;
+    primaryColor?: string;
+    secondaryColor?: string;
+    accentColor?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    fontFamily?: string;
+}> => {
+    const response = await fetch(`/api/chat`, { credentials: 'include' });
     if (!response.ok) {
         throw new Error('Failed to fetch chat history');
     }

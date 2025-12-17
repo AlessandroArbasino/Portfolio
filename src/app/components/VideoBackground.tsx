@@ -11,17 +11,7 @@ export function VideoBackground({ forcedUrl }: VideoBackgroundProps) {
   useEffect(() => {
     if (forcedUrl) {
       setCurrentUrl(forcedUrl);
-      return;
     }
-
-    // Default search for a nice portfolio background
-    getBackgroundImages("abstract dark gradient", "motion-backgrounds")
-      .then((images) => {
-        if (images.length > 0) {
-          setCurrentUrl(images[0]);
-        }
-      })
-      .catch(console.error);
   }, [forcedUrl]);
 
   // Simple heuristic: Unsplash links are images, Pexels video links usually end in .mp4 or are clearly not unsplash images.

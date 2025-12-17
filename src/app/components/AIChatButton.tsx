@@ -5,42 +5,26 @@ import { sendMessage, fetchChatHistory } from '../../api';
 import { useTheme } from '../context/ThemeContext';
 
 interface AIChatButtonProps {
+  initialHistory?: { role: 'user' | 'assistant'; content: string }[];
   onBackgroundChange?: (url: string | null) => void;
 }
 
-export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
+export function AIChatButton({ initialHistory, onBackgroundChange }: AIChatButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([
     { role: 'assistant', content: 'Ciao! Sono il tuo assistente AI. Posso aiutarti a personalizzare l\'aspetto del portfolio. Prova a chiedermi di cambiare i colori, il tema o lo stile!' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  // Simple Session ID generation for demo
-  const [sessionId] = useState(() => {
-    const saved = localStorage.getItem('chat_session_id');
-    if (saved) return saved;
-    const newId = 'session-' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('chat_session_id', newId);
-    return newId;
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchChatHistory(sessionId)
-        .then(history => {
-          const formatted = history.map(msg => ({
-            role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
-            content: msg.content
-          }));
-          if (formatted.length > 0) {
-            setChatHistory(formatted);
-          }
-        })
-        .catch(console.error);
-    }
-  }, [isOpen, sessionId]);
 
   const { updateTheme } = useTheme();
+
+  // Startup history/theme loading is handled globally at app mount
+  useEffect(() => {
+    if (initialHistory && Array.isArray(initialHistory) && initialHistory.length > 0) {
+      setChatHistory(initialHistory);
+    }
+  }, [initialHistory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +36,7 @@ export function AIChatButton({ onBackgroundChange }: AIChatButtonProps) {
     setIsLoading(true);
 
     try {
-      const result = await sendMessage(sessionId, userMsg);
+      const result = await sendMessage(userMsg);
       setChatHistory(prev => [...prev, { role: 'assistant', content: result.response }]);
 
       if (result.backgroundUrl && onBackgroundChange) {

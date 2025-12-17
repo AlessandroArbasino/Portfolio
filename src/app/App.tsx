@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AnimatePresence } from 'motion/react'; // Ensure this import is correct based on project deps
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Projects } from './components/Projects';
@@ -8,16 +9,25 @@ import { VideoBackground } from './components/VideoBackground';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
+import { Loading } from './components/Loading';
 import { fetchChatHistory, getBackgroundImages } from '../api';
 
 export default function App() {
   const [forcedBackground, setForcedBackground] = useState<string | null>(null);
   const [initialChatHistory, setInitialChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <LanguageProvider>
       <ThemeProvider>
-        <StartupInitializer onBackground={setForcedBackground} onHistory={setInitialChatHistory} />
+        <StartupInitializer
+          onBackground={setForcedBackground}
+          onHistory={setInitialChatHistory}
+          onLoaded={() => setIsLoading(false)}
+        />
+        <AnimatePresence>
+          {isLoading && <Loading key="loading-screen" isLoading={true} />}
+        </AnimatePresence>
         <div className="relative min-h-screen overflow-x-hidden">
           {/* Language Selector */}
           <LanguageSelector />
@@ -41,7 +51,11 @@ export default function App() {
   );
 }
 
-function StartupInitializer({ onBackground, onHistory }: { onBackground: (url: string | null) => void; onHistory: (msgs: { role: 'user' | 'assistant'; content: string }[]) => void }) {
+function StartupInitializer({ onBackground, onHistory, onLoaded }: {
+  onBackground: (url: string | null) => void;
+  onHistory: (msgs: { role: 'user' | 'assistant'; content: string }[]) => void;
+  onLoaded: () => void;
+}) {
   const { updateTheme } = useTheme();
 
   useEffect(() => {
@@ -57,7 +71,7 @@ function StartupInitializer({ onBackground, onHistory }: { onBackground: (url: s
             if (Array.isArray(images) && images.length > 0) {
               onBackground(images[0]);
             }
-          } catch {}
+          } catch { }
         }
 
         if (Array.isArray(data.messages) && data.messages.length > 0) {
@@ -76,9 +90,12 @@ function StartupInitializer({ onBackground, onHistory }: { onBackground: (url: s
         }
       } catch (e) {
         // ignore startup errors
+      } finally {
+        // Ensure loading screen is removed even if there are errors
+        onLoaded();
       }
     })();
-  }, [updateTheme, onBackground]);
+  }, [updateTheme, onBackground, onLoaded]);
 
   return null;
 }

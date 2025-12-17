@@ -4,67 +4,69 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const getGeminiResponse = async (history, message) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
-        // 1. Generate Chat Response (Stateless but with history)
-        // Construct the full conversation history for the "contents" parameter
-        const contents = history.map(msg => ({
-            role: msg.role === 'client' ? 'user' : 'model', // Map DB/Client roles to Gemini roles
-            parts: [{ text: msg.content }]
-        }));
-
-        // Add the new user message
-        contents.push({
-            role: 'user',
-            parts: [{ text: message }]
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash-lite',
+            generationConfig: { responseMimeType: "application/json" }
         });
 
-        console.log("Gemini Contents:", contents);
+        // Construct the full conversation history for context
+        const historyText = history.map(msg => `${msg.role === 'client' ? 'User' : 'Agent'}: ${msg.content}`).join('\n');
 
-        const result = await model.generateContent({ contents });
-        const responseText = result.response.text();
+        const prompt = `
+            You are a "Site Mood Agent" for a portfolio website. Your goal is to interpret the user's message to adjust the website's visual theme (colors, fonts) and background video.
 
-        // 2. Extract Mood and Keywords (Separate prompt or combined if complex, simple prompt here)
-        // Using a separate call for cleaner structured output specifically for Storyblocks
-        const analysisModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite', generationConfig: { responseMimeType: "application/json" } });
-        const analysisPrompt = `
-      Analyze the following user message and conversation context to determine the "mood", relevant "keywords" for a video background search, and a "theme" (colors and font) that matches the mood.
-      User Message: "${message}"
-      Context Summary: ${responseText.substring(0, 100)}...
-      
-      Return JSON: { 
-        "mood": "string", 
-        "keywords": "string",
-        "theme": {
-            "primaryColor": "hex color string (e.g. #ff0000)",
-            "secondaryColor": "hex color string",
-            "accentColor": "hex color string",
-            "fontFamily": "string (sans-serif, serif, monospace, or a specific google font name if common)"
-        }
-      }
-      Example: { 
-        "mood": "happy", 
-        "keywords": "nature, sun, flowers",
-        "theme": { "primaryColor": "#FFD700", "secondaryColor": "#87CEEB", "accentColor": "#FFFFFF", "fontFamily": "sans-serif" }
-      }
-    `;
+            Context:
+            ${historyText}
 
-        const analysisResult = await analysisModel.generateContent(analysisPrompt);
-        const analysisJson = await analysisResult.response.text();
-        let analysis = { mood: 'neutral', keywords: 'abstract', theme: null };
+            User Message: "${message}"
+
+            Instructions:
+            1. Analyze the user's message to determine the desired mood (e.g., "dark", "energetic", "calm", "professional").
+            2. Select 3-5 keywords for searching a relevant background video on Pexels (e.g., "storm", "abstract technology", "ocean waves").
+            3. Define a color theme (hex codes) and font family that matches the mood.
+            4. **Agent Response (text)**: Write a short, meta-commentary response describing *how* you are changing the site. Do NOT answer as a chatbot. 
+               - Bad: "Sure, I can help you with that. Here is a dark theme."
+               - Good: "I see you're looking for a mysterious vibe. I'm darkening the interface and setting a stormy background to match."
+               - Good: "Switching to a professional look with a clean, minimal layout and a corporate aesthetic."
+
+            Return ONLY a JSON object with this structure:
+            {
+                "text": "Your agent response here",
+                "mood": "string",
+                "keywords": "string",
+                "theme": {
+                    "primaryColor": "hex string",
+                    "secondaryColor": "hex string",
+                    "accentColor": "hex string",
+                    "fontFamily": "string",
+                    "backgroundColor": "hex string",
+                    "textColor": "hex string"
+                }
+            }
+        `;
+
+        console.log("Gemini Prompt constructed.");
+
+        const result = await model.generateContent(prompt);
+        const responseJson = result.response.text();
+
+        let parsedResult = {
+            text: "I updated the mood for you.",
+            mood: 'neutral',
+            keywords: 'abstract',
+            theme: {}
+        };
 
         try {
-            analysis = JSON.parse(analysisJson);
+            parsedResult = JSON.parse(responseJson);
         } catch (e) {
-            console.error("Failed to parse Gemini analysis JSON", e);
+            console.error("Failed to parse Gemini JSON:", e);
+            // Fallback if JSON is broken but maybe contains text? Unlikely with JSON mode but safe to handle.
         }
 
-        console.log("Gemini Analysis:", analysis);
+        console.log("Gemini Result:", parsedResult);
 
-        return {
-            text: responseText,
-            ...analysis
-        };
+        return parsedResult;
 
     } catch (error) {
         console.error('Gemini Service Error:', error);

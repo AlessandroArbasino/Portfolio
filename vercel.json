@@ -1,8 +1,12 @@
 {
-  "crons": [
+  "rewrites": [
     {
-      "path": "/api/cron/cleanup-chats",
-      "schedule": "0 18 * * *"
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

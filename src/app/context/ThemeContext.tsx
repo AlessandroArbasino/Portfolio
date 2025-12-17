@@ -10,6 +10,7 @@ export interface Theme {
 }
 
 interface ThemeContextType {
+    theme: Theme | null;
     updateTheme: (theme: Theme) => void;
     resetTheme: () => void;
 }
@@ -17,6 +18,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+    const [theme, setTheme] = React.useState<Theme | null>(null);
+
     // Helper to calculate contrast color
     const getContrastColor = (hexColor: string) => {
         // Convert hex to RGB
@@ -31,46 +34,43 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         return (yiq >= 128) ? '#000000' : '#ffffff';
     };
 
-    const updateTheme = (theme: Theme) => {
+    const updateTheme = (newTheme: Theme) => {
+        setTheme(newTheme);
         const root = document.documentElement;
 
-        if (theme.primaryColor) {
-            root.style.setProperty('--primary', theme.primaryColor);
-            root.style.setProperty('--primary-foreground', getContrastColor(theme.primaryColor));
+        if (newTheme.primaryColor) {
+            root.style.setProperty('--primary', newTheme.primaryColor);
+            root.style.setProperty('--primary-foreground', getContrastColor(newTheme.primaryColor));
         }
 
-        if (theme.secondaryColor) {
-            root.style.setProperty('--secondary', theme.secondaryColor);
-            root.style.setProperty('--secondary-foreground', getContrastColor(theme.secondaryColor));
+        if (newTheme.secondaryColor) {
+            root.style.setProperty('--secondary', newTheme.secondaryColor);
+            root.style.setProperty('--secondary-foreground', getContrastColor(newTheme.secondaryColor));
         }
 
-        if (theme.accentColor) {
-            root.style.setProperty('--accent', theme.accentColor);
-            root.style.setProperty('--accent-foreground', getContrastColor(theme.accentColor));
+        if (newTheme.accentColor) {
+            root.style.setProperty('--accent', newTheme.accentColor);
+            root.style.setProperty('--accent-foreground', getContrastColor(newTheme.accentColor));
         }
 
-        // You might want to map font-family to specific CSS variables or google fonts import
-        // For simplicity, we'll assuming standard fonts or update the --font-family variable if it exists
-        // checking index.css, standard fonts are used. Let's try to set a global font.
-        if (theme.fontFamily) {
-            root.style.setProperty('--font-family-sans', theme.fontFamily);
-            document.body.style.fontFamily = theme.fontFamily;
+        if (newTheme.fontFamily) {
+            root.style.setProperty('--font-family-sans', newTheme.fontFamily);
+            document.body.style.fontFamily = newTheme.fontFamily;
         }
 
-        if (theme.backgroundColor) {
-            // Apply background color globally
-            document.body.style.backgroundColor = theme.backgroundColor;
-            root.style.setProperty('--background', theme.backgroundColor);
+        if (newTheme.backgroundColor) {
+            document.body.style.backgroundColor = newTheme.backgroundColor;
+            root.style.setProperty('--background', newTheme.backgroundColor);
         }
 
-        if (theme.textColor) {
-            // Apply text color globally
-            document.body.style.color = theme.textColor;
-            root.style.setProperty('--foreground', theme.textColor);
+        if (newTheme.textColor) {
+            document.body.style.color = newTheme.textColor;
+            root.style.setProperty('--foreground', newTheme.textColor);
         }
     };
 
     const resetTheme = () => {
+        setTheme(null);
         const root = document.documentElement;
         root.style.removeProperty('--primary');
         root.style.removeProperty('--secondary');
@@ -79,7 +79,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <ThemeContext.Provider value={{ updateTheme, resetTheme }}>
+        <ThemeContext.Provider value={{ theme, updateTheme, resetTheme }}>
             {children}
         </ThemeContext.Provider>
     );

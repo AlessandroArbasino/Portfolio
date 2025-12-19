@@ -28,6 +28,7 @@ export const getGeminiResponse = async (history, message) => {
                - Bad: "Sure, I can help you with that. Here is a dark theme."
                - Good: "I see you're looking for a mysterious vibe. I'm darkening the interface and setting a stormy background to match."
                - Good: "Switching to a professional look with a clean, minimal layout and a corporate aesthetic."
+            5. **Language**: The text field in the response MUST be in the SAME language as the user's input message. If the user writes in Italian, reply in Italian. If in English, reply in English.
 
             Return ONLY a JSON object with this structure:
             {

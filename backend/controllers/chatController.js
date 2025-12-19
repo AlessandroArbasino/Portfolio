@@ -38,7 +38,7 @@ export const processChat = async (req, res) => {
         if (aiResult.keywords) {
             try {
                 console.log("Gemini Keywords:", aiResult.keywords);
-                const videos = await searchVideos(aiResult.keywords, 3);
+                const videos = await searchVideos(aiResult.keywords, process.env.PEXELS_VIDEOS_NUMBER);
                 if (videos && videos.length > 0) {
                     const random = videos[Math.floor(Math.random() * videos.length)];
                     const vidFile = random.video_files.find(f => f.quality === 'hd') || random.video_files[0];

@@ -65,7 +65,7 @@ export function Documents() {
                                 </div>
                             </div>
 
-                            <h3 className="text-white text-xl font-semibold mb-2">{doc.title}</h3>
+                            <h3 className="text-white mb-2">{doc.title}</h3>
                             <p className="text-white/60 text-sm flex-grow">{doc.description}</p>
 
                             <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">

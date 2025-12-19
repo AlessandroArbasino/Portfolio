@@ -4,6 +4,7 @@ import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Projects } from './components/Projects';
 import { Contact } from './components/Contact';
+import { Documents } from './components/Documents';
 import { AIChatButton } from './components/AIChatButton';
 import { VideoBackground } from './components/VideoBackground';
 import { LanguageProvider } from './context/LanguageContext';
@@ -40,6 +41,7 @@ export default function App() {
             <Hero />
             <About />
             <Projects />
+            <Documents />
             <Contact />
           </main>
 

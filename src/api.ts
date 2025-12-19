@@ -62,6 +62,19 @@ export interface FixedTexts {
         title: string;
         subtitle: string;
     };
+    documents: {
+        title: string;
+        subtitle: string;
+    };
+}
+
+export interface Document {
+    _id: string;
+    title: string;
+    description: string;
+    fileUrl: string;
+    type: string;
+    language: string;
 }
 
 export interface ContactItem {
@@ -117,6 +130,14 @@ export const getBackgroundImages = async (keywords?: string, content_type?: stri
     const response = await fetch(`/api/background-images?${params.toString()}`);
     if (!response.ok) {
         throw new Error('Failed to fetch background images');
+    }
+    return response.json();
+};
+
+export const getDocuments = async (): Promise<Document[]> => {
+    const response = await fetch('/api/documents');
+    if (!response.ok) {
+        throw new Error('Failed to fetch documents');
     }
     return response.json();
 };

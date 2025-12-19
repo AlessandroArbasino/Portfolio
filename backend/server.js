@@ -11,11 +11,13 @@ import translateRoutes from './routes/translateRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import languageRoutes from './routes/languageRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
 import BackgroundImage from './models/BackgroundImage.js';
 import PersonalProfile from './models/PersonalProfile.js';
 import Language from './models/Language.js';
+import Document from './models/Document.js';
 
 dotenv.config();
 
@@ -54,6 +56,7 @@ app.use('/api/translate', translateRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/documents', documentRoutes);
 
 // Seeder Logic (Run once if DB is empty)
 const seedData = async () => {
@@ -197,6 +200,11 @@ const seedData = async () => {
             subtitle: 'Alcuni dei progetti su cui ho lavorato'
         });
 
+        await seedSection('documents', {
+            title: 'Documenti',
+            subtitle: 'Scarica o visualizza i miei documenti'
+        });
+
         const imgCount = await BackgroundImage.countDocuments();
         if (imgCount === 0) {
             await BackgroundImage.insertMany([
@@ -240,6 +248,27 @@ const seedData = async () => {
                     { name: 'TailwindCSS', level: 95 }
                 ]
             });
+        }
+
+        const docCount = await Document.countDocuments();
+        if (docCount === 0) {
+            await Document.insertMany([
+                {
+                    title: 'Curriculum Vitae',
+                    description: 'Il mio CV aggiornato al 2024',
+                    fileUrl: 'https://example.com/cv.pdf',
+                    type: 'PDF',
+                    language: 'it'
+                },
+                {
+                    title: 'Portfolio Presentation',
+                    description: 'Presentazione estesa dei progetti',
+                    fileUrl: 'https://example.com/portfolio.pdf',
+                    type: 'PDF',
+                    language: 'it'
+                }
+            ]);
+            console.log('Seeded documents');
         }
     } catch (err) {
         console.error("Seeding error:", err);

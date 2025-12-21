@@ -74,7 +74,7 @@ export function Projects() {
   };
 
   return (
-    <section id="projects" className="min-h-screen flex flex-col justify-center px-4 py-16">
+    <section id="projects" className="flex flex-col justify-center px-4 py-8">
       <div className="max-w-4xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

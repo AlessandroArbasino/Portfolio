@@ -26,9 +26,9 @@ export function About() {
     if (profile?.competences && profile.competences.length > 0) {
       return profile.competences.map((c) => ({
         icon: c.icon === 'layout' ? <Layout size={24} />
-             : c.icon === 'database' ? <Database size={24} />
-             : c.icon === 'code' ? <Code2 size={24} />
-             : <Code2 size={24} />,
+          : c.icon === 'database' ? <Database size={24} />
+            : c.icon === 'code' ? <Code2 size={24} />
+              : <Code2 size={24} />,
         title: c.title,
         description: c.description,
       }));
@@ -71,7 +71,7 @@ export function About() {
   ], [profile, t]);
 
   return (
-    <section id="about" className="min-h-screen flex flex-col justify-center px-4 py-16">
+    <section id="about" className="flex flex-col justify-center px-4 py-8">
       <div className="max-w-6xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -146,7 +146,7 @@ export function About() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h3 className="text-white text-center mb-8">{t?.skills || 'My Skills'}</h3>
+          <h2 className="text-white text-center mb-12">{t?.skills || 'My Skills'}</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

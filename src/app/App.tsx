@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react'; // Ensure this import is correct based on project deps
 import { Hero } from './components/Hero';
 import { About } from './components/About';
@@ -18,13 +18,17 @@ export default function App() {
   const [initialChatHistory, setInitialChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleBackground = React.useCallback((url: string | null) => setForcedBackground(url), []);
+  const handleHistory = React.useCallback((msgs: { role: 'user' | 'assistant'; content: string }[]) => setInitialChatHistory(msgs), []);
+  const handleLoaded = React.useCallback(() => setIsLoading(false), []);
+
   return (
     <LanguageProvider>
       <ThemeProvider>
         <StartupInitializer
-          onBackground={setForcedBackground}
-          onHistory={setInitialChatHistory}
-          onLoaded={() => setIsLoading(false)}
+          onBackground={handleBackground}
+          onHistory={handleHistory}
+          onLoaded={handleLoaded}
         />
         <AnimatePresence>
           {isLoading && <Loading key="loading-screen" isLoading={true} />}

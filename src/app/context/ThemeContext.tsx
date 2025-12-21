@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         return (yiq >= 128) ? '#000000' : '#ffffff';
     };
 
-    const updateTheme = (newTheme: Theme) => {
+    const updateTheme = React.useCallback((newTheme: Theme) => {
         setTheme(newTheme);
         const root = document.documentElement;
 
@@ -73,9 +73,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             document.body.style.color = newTheme.textColor;
             root.style.setProperty('--foreground', newTheme.textColor);
         }
-    };
+    }, []);
 
-    const resetTheme = () => {
+    const resetTheme = React.useCallback(() => {
         setTheme(null);
         const root = document.documentElement;
         root.style.removeProperty('--primary');
@@ -83,10 +83,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         root.style.removeProperty('--accent');
         root.style.removeProperty('--assistant');
         document.body.style.removeProperty('font-family');
-    };
+    }, []);
+
+    const contextValue = React.useMemo(() => ({ theme, updateTheme, resetTheme }), [theme, updateTheme, resetTheme]);
 
     return (
-        <ThemeContext.Provider value={{ theme, updateTheme, resetTheme }}>
+        <ThemeContext.Provider value={contextValue}>
             {children}
         </ThemeContext.Provider>
     );

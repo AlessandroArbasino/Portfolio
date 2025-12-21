@@ -8,7 +8,7 @@ import { sendMessage } from '../../api';
 interface AIChatButtonProps {
   showWelcome?: boolean;
   initialHistory?: { role: 'user' | 'assistant'; content: string }[];
-  onBackgroundChange?: (url: string | null) => void;
+  onBackgroundChange?: (url: string | null, thumbnailUrl?: string | null) => void;
 }
 
 export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundChange }: AIChatButtonProps) {
@@ -26,7 +26,7 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
   const [isLoading, setIsLoading] = useState(false);
 
   const { language, fixedTexts } = useLanguage();
-  const { updateTheme, theme } = useTheme();
+  const { updateTheme, theme, getContrastColor } = useTheme();
 
   // Restore history sync effect
   useEffect(() => {
@@ -98,12 +98,12 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
 
       setChatHistory(prev => [...prev, { role: 'assistant', content: reply }]);
 
-      if (result.backgroundUrl && onBackgroundChange) {
-        onBackgroundChange(result.backgroundUrl);
-      }
-
       if (result.theme) {
         updateTheme(result.theme);
+      }
+
+      if (result.backgroundUrl && onBackgroundChange) {
+        await onBackgroundChange(result.backgroundUrl, result.thumbnailUrl);
       }
 
     } catch (error) {
@@ -154,33 +154,41 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
             className="fixed bottom-24 right-6 z-40 max-w-xs"
             style={fontStyle}
           >
-            <div
-              className="rounded-2xl p-4 shadow-2xl relative"
-              style={gradientStyle}
-            >
-              <div className="flex items-start gap-3">
-                <div className="bg-white/20 rounded-full p-2">
-                  <Sparkles size={20} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-white mb-1 text-sm">{translations.tooltipTitle}</h4>
-                  <p className="text-white/90 text-xs leading-relaxed">
-                    {translations.tooltipDesc}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowTooltip(false)}
-                  className="text-white/60 hover:text-white transition-colors"
+            {(() => {
+              const tooltipTextColor = getContrastColor(primaryColor);
+              return (
+                <div
+                  className="rounded-2xl p-4 shadow-2xl relative"
+                  style={gradientStyle}
                 >
-                  <X size={16} />
-                </button>
-              </div>
-              {/* Arrow */}
-              <div
-                className="absolute -bottom-2 right-8 w-4 h-4 transform rotate-45"
-                style={gradientStyle}
-              ></div>
-            </div>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <Sparkles size={20} style={{ color: tooltipTextColor }} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 style={{ color: tooltipTextColor }} className="mb-1 text-sm">{translations.tooltipTitle}</h4>
+                      <p style={{ color: tooltipTextColor, opacity: 0.9 }} className="text-xs leading-relaxed">
+                        {translations.tooltipDesc}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowTooltip(false)}
+                      className="transition-colors"
+                      style={{ color: tooltipTextColor, opacity: 0.6 }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.6')}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  {/* Arrow */}
+                  <div
+                    className="absolute -bottom-2 right-8 w-4 h-4 transform rotate-45"
+                    style={gradientStyle}
+                  ></div>
+                </div>
+              );
+            })()}
           </motion.div>
         )}
       </AnimatePresence>
@@ -252,15 +260,14 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
           )}
         </AnimatePresence>
 
-        {/* Main button */}
         <motion.button
           ref={buttonRef}
           onClick={handleOpen}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="relative w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-shadow"
+          className="relative w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
           aria-label="Open AI chat"
-          style={gradientStyle}
+          style={{ ...gradientStyle, color: getContrastColor(primaryColor) }}
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -301,46 +308,61 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
             style={fontStyle}
           >
             <div
-              className="backdrop-blur-xl rounded-2xl border shadow-2xl overflow-hidden"
+              className={`backdrop-blur-xl rounded-2xl border shadow-2xl overflow-hidden`}
               style={{
-                backgroundColor: theme?.backgroundColor ? `${theme.backgroundColor}f2` : 'rgba(0, 0, 0, 0.8)',
+                backgroundColor: 'rgba(0, 0, 0, 0.15)', // Much more transparent dark glass
                 borderColor: theme?.primaryColor ? `${theme.primaryColor}33` : 'rgba(255, 255, 255, 0.2)',
-                color: theme?.textColor || '#ffffff'
+                color: '#ffffff' // Always white text for contrast on blur
               }}
             >
               {/* Header */}
-              <div
-                className="px-6 py-4"
-                style={gradientStyle}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles size={18} className="text-white" />
-                  <h3 className="text-white">{translations.chatTitle}</h3>
-                </div>
-                <p className="text-white/80 text-sm">{translations.subtitle}</p>
-              </div>
+              {(() => {
+                const headerTextColor = getContrastColor(primaryColor);
+                return (
+                  <div
+                    className="px-6 py-4"
+                    style={gradientStyle}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sparkles size={18} style={{ color: headerTextColor }} />
+                      <h3 style={{ color: headerTextColor }} className="font-semibold">{translations.chatTitle}</h3>
+                    </div>
+                    <p style={{ color: headerTextColor, opacity: 0.8 }} className="text-sm">{translations.subtitle}</p>
+                  </div>
+                );
+              })()}
 
               {/* Messages */}
               <div className="p-6 h-64 overflow-y-auto flex flex-col gap-4">
-                {chatHistory.map((msg, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    style={msg.role === 'user' ? {
-                      backgroundColor: primaryColor,
-                      color: '#fff',
-                      marginLeft: 'auto'
-                    } : {
-                      backgroundColor: theme?.assistantColor || (theme?.backgroundColor ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)'),
-                      color: theme?.assistantColor ? '#ffffff' : (theme?.textColor || '#ffffff'),
-                      border: theme?.assistantColor ? 'none' : `1px solid ${theme?.primaryColor}20`
-                    }}
-                    className={`max-w-[80%] p-3 rounded-lg text-sm shadow-sm`}
-                  >
-                    <p>{msg.content}</p>
-                  </motion.div>
-                ))}
+                {chatHistory.map((msg, idx) => {
+                  const isUser = msg.role === 'user';
+                  const bubbleBg = isUser
+                    ? primaryColor
+                    : 'rgba(255, 255, 255, 0.12)';
+
+                  const messageTextColor = isUser
+                    ? getContrastColor(primaryColor)
+                    : '#ffffff';
+
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: isUser ? 20 : -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      style={{
+                        backgroundColor: bubbleBg,
+                        color: messageTextColor,
+                        marginLeft: isUser ? 'auto' : '0',
+                        border: isUser ? 'none' : `1px solid rgba(255, 255, 255, 0.1)`,
+                        fontWeight: 500,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}
+                      className="max-w-[85%] p-3.5 rounded-2xl text-[0.925rem] shadow-md leading-relaxed"
+                    >
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    </motion.div>
+                  );
+                })}
                 {isLoading && (
                   <div
                     className="text-xs italic opacity-60"
@@ -354,24 +376,31 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
               {/* Input */}
               <form onSubmit={handleSubmit} className="p-4 border-t border-white/10">
                 <div className="flex gap-2">
+                  <style>
+                    {`
+                      .chat-input-field::placeholder {
+                        color: ${getContrastColor(primaryColor)};
+                        opacity: 0.6;
+                      }
+                    `}
+                  </style>
                   <input
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={translations.placeholder}
-                    className="flex-1 rounded-lg px-4 py-2 placeholder-white/40 focus:outline-none transition-colors border"
+                    className="flex-1 rounded-lg px-4 py-2 focus:outline-none transition-colors border-none shadow-inner chat-input-field"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderColor: theme?.primaryColor ? `${theme.primaryColor}40` : 'rgba(255, 255, 255, 0.2)',
-                      color: theme?.textColor || '#ffffff'
+                      ...gradientStyle,
+                      color: getContrastColor(primaryColor)
                     }}
                   />
                   <button
                     type="submit"
-                    className="rounded-lg px-4 py-2 text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="rounded-lg px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-50"
                     aria-label={translations.send}
                     disabled={isLoading}
-                    style={gradientStyle}
+                    style={{ ...gradientStyle, color: getContrastColor(primaryColor) }}
                   >
                     <Send size={20} />
                   </button>

@@ -35,6 +35,7 @@ export const processChat = async (req, res) => {
 
         // 4. Fetch Background Image/Video based on Keywords (Pexels)
         let backgroundUrl = null;
+        let thumbnailUrl = null;
         if (aiResult.keywords) {
             try {
                 console.log("Gemini Keywords:", aiResult.keywords);
@@ -43,10 +44,12 @@ export const processChat = async (req, res) => {
                     const random = videos[Math.floor(Math.random() * videos.length)];
                     const vidFile = random.video_files.find(f => f.quality === 'hd') || random.video_files[0];
                     backgroundUrl = vidFile ? vidFile.link : random.image;
+                    thumbnailUrl = random.image; // Pexels returns a 'image' property which is the thumbnail
 
                     console.log("Background URL:", backgroundUrl);
                     if (backgroundUrl) {
                         updates.$set.backgroundUrl = backgroundUrl;
+                        updates.$set.thumbnailUrl = thumbnailUrl;
                     }
                 }
             } catch (pexError) {
@@ -78,7 +81,8 @@ export const processChat = async (req, res) => {
             mood: aiResult.mood,
             keywords: aiResult.keywords,
             theme: aiResult.theme,
-            backgroundUrl: session.backgroundUrl || backgroundUrl
+            backgroundUrl: session.backgroundUrl || backgroundUrl,
+            thumbnailUrl: session.thumbnailUrl || thumbnailUrl
         });
 
     } catch (error) {
@@ -117,6 +121,7 @@ export const getChatHistory = async (req, res) => {
         res.json({
             messages: session.messages,
             backgroundUrl: session.backgroundUrl || null,
+            thumbnailUrl: session.thumbnailUrl || null,
             primaryColor: session.primaryColor,
             secondaryColor: session.secondaryColor,
             accentColor: session.accentColor,
@@ -126,6 +131,42 @@ export const getChatHistory = async (req, res) => {
             assistantColor: session.assistantColor
         });
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+// @desc    Update session theme
+// @route   PUT /api/chat/theme
+export const updateSessionTheme = async (req, res) => {
+    try {
+        const sessionId = req.sessionId;
+        const { theme } = req.body;
+
+        if (!sessionId || !theme) {
+            return res.status(400).json({ message: 'Session ID and theme are required' });
+        }
+
+        const updates = {};
+        if (theme.primaryColor !== undefined) updates.primaryColor = theme.primaryColor;
+        if (theme.secondaryColor !== undefined) updates.secondaryColor = theme.secondaryColor;
+        if (theme.accentColor !== undefined) updates.accentColor = theme.accentColor;
+        if (theme.backgroundColor !== undefined) updates.backgroundColor = theme.backgroundColor;
+        if (theme.textColor !== undefined) updates.textColor = theme.textColor;
+        if (theme.fontFamily !== undefined) updates.fontFamily = theme.fontFamily;
+
+        const session = await ChatSession.findOneAndUpdate(
+            { sessionId },
+            { $set: updates },
+            { new: true }
+        );
+
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+
+        res.json({ message: 'Theme updated successfully', theme: session });
+
+    } catch (error) {
+        console.error('Update Theme Controller Error:', error);
         res.status(500).json({ message: error.message });
     }
 };

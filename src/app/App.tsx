@@ -11,56 +11,79 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
 import { Loading } from './components/Loading';
-import { fetchChatHistory, getBackgroundImages } from '../api';
+import { fetchChatHistory, getBackgroundImages, saveTheme } from '../api';
+import { extractPalette } from '../utils/colorExtractor';
 
 export default function App() {
   const [forcedBackground, setForcedBackground] = useState<string | null>(null);
   const [initialChatHistory, setInitialChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleBackground = React.useCallback((url: string | null) => setForcedBackground(url), []);
+  const { updateTheme } = useTheme();
+
+  const handleBackgroundChange = React.useCallback(async (url: string | null, thumbnailUrl?: string | null) => {
+    if (url || thumbnailUrl) {
+      // Use thumbnail for extraction if available (recommended for videos)
+      const extractUrl = thumbnailUrl || url;
+      if (extractUrl) {
+        const palette = await extractPalette(extractUrl);
+        if (palette) {
+          const newTheme = {
+            primaryColor: palette.primary,
+            secondaryColor: palette.secondary,
+            accentColor: palette.accent
+          };
+          updateTheme(newTheme);
+          // Persist the extracted theme on the backend
+          saveTheme(newTheme).catch(e => console.error("Failed to persist theme:", e));
+        }
+      }
+    }
+    // Set the background URL ONLY after the theme has potentially been updated
+    // This makes the transition feel atomic and avoids text contrast issues on fade-in
+    setForcedBackground(url);
+  }, [updateTheme]);
+
   const handleHistory = React.useCallback((msgs: { role: 'user' | 'assistant'; content: string }[]) => setInitialChatHistory(msgs), []);
   const handleLoaded = React.useCallback(() => setIsLoading(false), []);
 
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <StartupInitializer
-          onBackground={handleBackground}
-          onHistory={handleHistory}
-          onLoaded={handleLoaded}
-        />
-        <AnimatePresence>
-          {isLoading && <Loading key="loading-screen" isLoading={true} />}
-        </AnimatePresence>
-        <div className="relative min-h-screen overflow-x-hidden">
-          {/* Language Selector */}
-          <LanguageSelector />
+    <>
+      <StartupInitializer
+        onBackground={handleBackgroundChange}
+        onHistory={handleHistory}
+        onLoaded={handleLoaded}
+      />
+      <AnimatePresence>
+        {isLoading && <Loading key="loading-screen" isLoading={true} />}
+      </AnimatePresence>
+      <div className="relative min-h-screen overflow-x-hidden">
+        {/* Language Selector */}
+        <LanguageSelector />
 
-          {/* Video Background */}
-          <VideoBackground forcedUrl={forcedBackground} />
+        {/* Video Background */}
+        <VideoBackground forcedUrl={forcedBackground} />
 
-          {/* Main Content */}
-          <main className="relative z-10">
-            <Hero />
-            <About />
-            <Projects />
-            <Documents />
-            <Contact />
-          </main>
+        {/* Main Content */}
+        <main className="relative z-10">
+          <Hero />
+          <About />
+          <Projects />
+          <Documents />
+          <Contact />
+        </main>
 
-          {/* AI Chat Button */}
-          <AIChatButton onBackgroundChange={setForcedBackground} initialHistory={initialChatHistory || undefined} />
-        </div>
-      </ThemeProvider>
-    </LanguageProvider>
+        {/* AI Chat Button */}
+        <AIChatButton onBackgroundChange={handleBackgroundChange} initialHistory={initialChatHistory || undefined} />
+      </div>
+    </>
   );
 }
 
 let hasRunGlobal = false;
 
 function StartupInitializer({ onBackground, onHistory, onLoaded }: {
-  onBackground: (url: string | null) => void;
+  onBackground: (url: string | null, thumbnailUrl?: string | null) => void;
   onHistory: (msgs: { role: 'user' | 'assistant'; content: string }[]) => void;
   onLoaded: () => void;
 }) {
@@ -74,7 +97,7 @@ function StartupInitializer({ onBackground, onHistory, onLoaded }: {
       try {
         const data = await fetchChatHistory();
         if (data.backgroundUrl) {
-          onBackground(data.backgroundUrl);
+          onBackground(data.backgroundUrl, data.thumbnailUrl);
         } else {
           // Fallback: pick a default motion background
           try {

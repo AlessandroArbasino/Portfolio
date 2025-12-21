@@ -142,7 +142,7 @@ export const getDocuments = async (): Promise<Document[]> => {
     return response.json();
 };
 
-export const sendMessage = async (message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null; theme?: any }> => {
+export const sendMessage = async (message: string): Promise<{ response: string; mood: string; keywords: string; backgroundUrl: string | null; thumbnailUrl?: string | null; theme?: any }> => {
     const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -197,6 +197,7 @@ export const fetchProfile = async (lang: string = 'it'): Promise<PersonalProfile
 export const fetchChatHistory = async (): Promise<{
     messages: { role: 'user' | 'assistant'; content: string }[];
     backgroundUrl?: string | null;
+    thumbnailUrl?: string | null;
     primaryColor?: string;
     secondaryColor?: string;
     accentColor?: string;
@@ -208,6 +209,20 @@ export const fetchChatHistory = async (): Promise<{
     const response = await fetch(`/api/chat`, { credentials: 'include' });
     if (!response.ok) {
         throw new Error('Failed to fetch chat history');
+    }
+    return response.json();
+};
+export const saveTheme = async (theme: any): Promise<{ message: string }> => {
+    const response = await fetch('/api/chat/theme', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ theme }),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to save theme');
     }
     return response.json();
 };

@@ -44,13 +44,13 @@ export function MediaModal() {
                                                     src={currentMedia.src}
                                                     controls
                                                     autoPlay
-                                                    className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] md:max-w-[90vw] md:max-h-[90vh] object-contain shadow-2xl rounded-lg"
+                                                    className="max-w-[calc(100vw-4rem)] max-h-[calc(100vh-4rem)] md:max-w-[85vw] md:max-h-[85vh] object-contain shadow-2xl rounded-lg"
                                                 />
                                             ) : (
                                                 <img
                                                     src={currentMedia?.src}
                                                     alt="Full screen media"
-                                                    className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] md:max-w-[90vw] md:max-h-[90vh] object-contain shadow-2xl rounded-lg"
+                                                    className="max-w-[calc(100vw-4rem)] max-h-[calc(100vh-4rem)] md:max-w-[85vw] md:max-h-[85vh] object-contain shadow-2xl rounded-lg"
                                                 />
                                             )}
                                         </div>

@@ -57,6 +57,8 @@ export default function App() {
   );
 }
 
+let hasRunGlobal = false;
+
 function StartupInitializer({ onBackground, onHistory, onLoaded }: {
   onBackground: (url: string | null) => void;
   onHistory: (msgs: { role: 'user' | 'assistant'; content: string }[]) => void;
@@ -65,6 +67,9 @@ function StartupInitializer({ onBackground, onHistory, onLoaded }: {
   const { updateTheme } = useTheme();
 
   useEffect(() => {
+    if (hasRunGlobal) return;
+    hasRunGlobal = true;
+
     (async () => {
       try {
         const data = await fetchChatHistory();
@@ -102,7 +107,9 @@ function StartupInitializer({ onBackground, onHistory, onLoaded }: {
         onLoaded();
       }
     })();
-  }, [updateTheme, onBackground, onLoaded]);
+    // Empty dependency array ensures this only runs once on mount.
+    // The ref is an extra guard for React Strict Mode.
+  }, []);
 
   return null;
 }

@@ -39,6 +39,7 @@ export const getGeminiResponse = async (history, message) => {
                     "primaryColor": "hex string",
                     "secondaryColor": "hex string",
                     "accentColor": "hex string",
+                    "assistantColor": "hex string (specifically for assistant chat bubbles, must contrast with primaryColor)",
                     "fontFamily": "string",
                     "backgroundColor": "hex string",
                     "textColor": "hex string"

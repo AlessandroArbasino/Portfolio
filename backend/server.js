@@ -66,86 +66,203 @@ const seedData = async () => {
             console.log('Seeding initial data...');
             const projects = [
                 {
-                    id: '1',
-                    name: 'E-Commerce Platform',
-                    description: 'Piattaforma di e-commerce completa con gestione prodotti, carrello e pagamenti',
-                    tech: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
-                    github: '#',
-                    demo: '#',
-                    images: [
-                        'https://images.unsplash.com/photo-1658297063569-162817482fb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlY29tbWVyY2UlMjB3ZWJzaXRlfGVufDF8fHx8MTc2NTYzNTUyMXww&ixlib=rb-4.1.0&q=80&w=1080',
-                        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
+                    "id": "1",
+                    "name": "Build the Feed (AI-Driven Instagram Page)",
+                    "description": "An autonomous AI-managed Instagram page with a community engagement system, allowing users to submit prompts to determine the content to be posted. Built entirely using free-tier tools and services (Vercel, Neon DB).",
+                    "tech": [
+                        "React",
+                        "Node.js",
+                        "JavaScript",
+                        "Gemini API",
+                        "Meta Graph API",
+                        "Cloudinary",
+                        "Telegram API",
+                        "Vercel",
+                        "Neon DB"
                     ],
-                    challenges: [
-                        { problem: "Gestione concorrenza ordini", solution: "Utilizzo di transazioni database e locking ottimistico" },
-                        { problem: "Latenza pagamenti", solution: "Implementazione webhook asincroni per conferme Stripe" }
+                    "github": "#",
+                    "demo": "#",
+                    "images": [
+                        "https://images.unsplash.com/photo-1629851722822-4811a0134b2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwZmVlZHxlbnwxfHx8fDE3NjU3MjQwNDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+                        "https://images.unsplash.com/photo-1543286386-713bdd548da7?w=800"
                     ],
-                    subProjects: [
+                    "challenges": [
                         {
-                            id: '1-1',
-                            name: 'Admin Dashboard',
-                            description: 'Dashboard per la gestione dei prodotti e ordini',
-                            tech: ['React', 'Chart.js', 'TailwindCSS'],
-                            link: '#',
-                            images: [
-                                'https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZG1pbiUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NjU3MjM4NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-                                'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+                            "problem": "Ensuring content policy compliance for user prompts",
+                            "solution": "Integrating a content moderation check using the Gemini API before queuing the prompt."
+                        },
+                        {
+                            "problem": "Managing the asynchronous content generation and posting flow",
+                            "solution": "Implementing a robust, scheduled workflow (e.g., cron jobs or serverless functions) to handle sequential steps: prompt refinement, image generation, asset upload (Cloudinary), caption generation, and final posting (Meta Graph API)."
+                        }
+                    ],
+                    "subProjects": [
+                        {
+                            "id": "1-1",
+                            "name": "User Prompt Submission Web App",
+                            "description": "A front-end application to collect user prompts. Submissions are checked against content policies via the Gemini API, queued in the database, and the user receives an estimated content generation time.",
+                            "tech": [
+                                "React",
+                                "JavaScript",
+                                "Gemini API"
                             ],
-                            challenges: [
-                                { problem: "Performance dashboard", solution: "Caching dati aggregati con Redis" }
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1534536281715-e20c699042b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1c2VyJTIwaW5wdXQlMjBmb3JtfGVufDF8fHx8MTc2NTcyNDA0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1533038590840-1cde66d2d725?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Providing real-time feedback on queue position",
+                                    "solution": "Fetching and displaying the current queue size and estimated processing time from the backend/database."
+                                }
                             ]
                         },
                         {
-                            id: '1-2',
-                            name: 'Payment Gateway Integration',
-                            description: 'Integrazione con Stripe per pagamenti sicuri',
-                            tech: ['Node.js', 'Stripe API', 'Webhook'],
-                            link: '#',
-                            images: [
-                                'https://images.unsplash.com/photo-1556740714-a8395b3bf30f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXltZW50JTIwZ2F0ZXdheXxlbnwxfHx8fDE3NjU3MjM4NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-                                'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800',
+                            "id": "1-2",
+                            "name": "Automatic Post Workflow",
+                            "description": "The core backend workflow. It processes a user-submitted (or AI-generated fallback) prompt, refines it using the Gemini API, generates an image via Flux Dev, uploads the asset to Cloudinary, creates a suitable caption with hashtags and a CTA, and finally posts the content to Instagram via the Meta Graph API. The post is also automatically shared to a dedicated Telegram group.",
+                            "tech": [
+                                "Meta Graph API",
+                                "Gemini API",
+                                "JavaScript",
+                                "Cloudinary",
+                                "Telegram API"
                             ],
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1555066931-4365d14bab8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb250ZW50JTIwYXV0b21hdGlvbiUyMHBpcGVsaW5lfGVufDF8fHx8MTc2NTcyNDA0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1510511459019-5be77853f753?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Handling different API rate limits",
+                                    "solution": "Implementing exponential backoff and retries for critical API calls (e.g., Meta Graph API) and careful scheduling to avoid hitting limits."
+                                }
+                            ]
                         },
-                    ],
-                },
-                {
-                    id: '2',
-                    name: 'Task Management App',
-                    description: 'Applicazione per la gestione di progetti e task con collaborazione in team',
-                    tech: ['React', 'TypeScript', 'Firebase', 'Tailwind'],
-                    github: '#',
-                    demo: '#',
-                    images: [
-                        'https://images.unsplash.com/photo-1651129522359-ce483a8263a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YXNrJTIwbWFuYWdlbWVudCUyMGFwcHxlbnwxfHx8fDE3NjU3MDEyMTJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-                        'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800',
-                        'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?w=800',
-                    ],
-                    subProjects: [
                         {
-                            id: '2-1',
-                            name: 'Real-time Notifications',
-                            description: 'Sistema di notifiche in tempo reale per gli aggiornamenti del team',
-                            tech: ['Socket.io', 'Node.js'],
-                            link: '#',
-                            images: [
-                                'https://images.unsplash.com/photo-1762340915398-000c216e7cd6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxub3RpZmljYXRpb24lMjBzeXN0ZW18ZW58MXx8fHwxNzY1NzIzODYyfDA&ixlib=rb-4.1.0&q=80&w=1080',
-                                'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800',
+                            "id": "1-3",
+                            "name": "Gamification and Voting System",
+                            "description": "Adds a community gamification layer. Weekly, the best images are selected for a weekend voting session. The images are edited (using Cloudinary or programmatic tools) to include corresponding numbers. Voting takes place on a Telegram channel using an inline keyboard. After the voting period, results are tallied, and the winner is announced on Instagram via a carousel post and stories (stories pre-made in Canva).",
+                            "tech": [
+                                "JavaScript",
+                                "Telegram API",
+                                "Cloudinary",
+                                "Meta Graph API"
                             ],
-                        },
-                    ],
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1557804506-669a8b163d8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnYW1pZmljYXRpb24lMjB2b3RpbmclMjBzeXN0ZW18ZW58MXx8fHwxNzY1NzI0MDQ3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1512485800893-b08ec1ea5929?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Securely tracking votes and preventing ballot stuffing",
+                                    "solution": "Storing votes in the database with user ID validation (where possible via Telegram API) to ensure unique submissions."
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
-                    id: '3',
-                    name: 'Portfolio CMS',
-                    description: 'Sistema di gestione contenuti per portfolio creativi',
-                    tech: ['Next.js', 'Prisma', 'PostgreSQL'],
-                    github: '#',
-                    images: [
-                        'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0Zm9saW8lMjB3ZWJzaXRlfGVufDF8fHx8MTc2NTcxODE4M3ww&ixlib=rb-4.1.0&q=80&w=1080',
-                        'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=800',
-                        'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=800',
+                    "id": "3",
+                    "name": "Mood-Adaptive AI Portfolio",
+                    "description": "A dynamic portfolio website featuring an integrated AI agent. The agent analyzes the user's mood via chat interaction (using Gemini) and adjusts the entire website's primary colors, fonts, and background videos/images (fetched from Pexels API) to match the detected mood.",
+                    "tech": [
+                        "React",
+                        "Node.js",
+                        "Gemini API",
+                        "Pexels API",
+                        "PostgreSQL",
+                        "Vercel",
+                        "Serverless Functions"
                     ],
-                },
+                    "github": "#",
+                    "demo": "#",
+                    "images": [
+                        "https://images.unsplash.com/photo-1549490349-869279093e50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwdXJwbGUlMjB3ZWJzaXRlfGVufDF8fHx8MTc2NTc5NzY2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+                        "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800"
+                    ],
+                    "challenges": [
+                        {
+                            "problem": "Accurate extraction and mapping of user mood to design parameters",
+                            "solution": "Developing a structured prompt for the Gemini API to analyze chat sentiment and output specific, quantifiable design variables (color codes, font categories, Pexels search terms)."
+                        },
+                        {
+                            "problem": "Maintaining consistent personalization without user login",
+                            "solution": "Storing encrypted session tokens in the user's browser (or database) to persist the personalized settings across multiple visits."
+                        }
+                    ],
+                    "subProjects": [
+                        {
+                            "id": "3-1",
+                            "name": "AI Agent Integration and Personalization Persistence",
+                            "description": "Integration of the Gemini API for natural language understanding and mood extraction from user chat. Personalization settings are persisted via a securely stored (encrypted) session token instead of requiring a full login. A scheduled cron job is implemented to periodically delete old session data (chats older than X days) to maintain database hygiene and performance.",
+                            "tech": [
+                                "Gemini API",
+                                "Node.js",
+                                "PostgreSQL",
+                                "Session Tokens",
+                                "Cron Job"
+                            ],
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1510915228367-e6fa2c191a27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGF0Ym90JTIwZGF0YWJhc2UlMjBzY2hlZHVsZXJ8ZW58MXx8fHwxNzY1Nzk3NjYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1548685913-fe7870c538a0?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Ensuring the session token is secure and tamper-proof",
+                                    "solution": "Using industry-standard encryption algorithms (e.g., AES-256) for token content and secure HTTPS cookies for transmission."
+                                }
+                            ]
+                        },
+                        {
+                            "id": "3-2",
+                            "name": "Dynamic UI and Pexels Integration",
+                            "description": "Front-end components (primary colors and fonts) are dynamically updated using CSS variables based on the mood data extracted by the AI agent. The background is dynamically set by querying the public Pexels API for relevant video/image content (e.g., searching 'calm' or 'energetic') and displaying the chosen asset in a looping background element.",
+                            "tech": [
+                                "React",
+                                "CSS Variables",
+                                "Pexels API"
+                            ],
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1582213600609-b7b51e5e062f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkeW5hbWljJTIwd2ViJTIwZGVzaWduJTIwY29sb3JzfGVufDF8fHx8MTc2NTc5NzY2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Optimizing Pexels background video load time and performance",
+                                    "solution": "Implementing lazy loading and selecting low-bandwidth video formats/resolutions provided by the Pexels API."
+                                }
+                            ]
+                        },
+                        {
+                            "id": "3-3",
+                            "name": "AI-Powered Infinite Language Support",
+                            "description": "The entire website's static text is stored in a centralized system (e.g., database or JSON files). A dedicated API endpoint is implemented to allow developers to add a new language, which automatically translates all existing text content into the target language using the AI (Gemini API). Italian and English translations are maintained manually for maximum quality, while all other languages are AI-generated, offering virtually unlimited language support.",
+                            "tech": [
+                                "Gemini API",
+                                "Node.js",
+                                "Internationalization (i18n)",
+                                "API Gateway"
+                            ],
+                            "link": "#",
+                            "images": [
+                                "https://images.unsplash.com/photo-1502444330083-b78971f65492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsb2NhbGl6YXRpb24lMjBzdXN0ZW1zfGVufDF8fHx8MTc2NTc5ODk4MHww&ixlib=rb-4.1.0&q=80&w=1080",
+                                "https://images.unsplash.com/photo-1582213600609-b7b51e5e062f?w=800"
+                            ],
+                            "challenges": [
+                                {
+                                    "problem": "Maintaining translation accuracy and context for AI-generated languages",
+                                    "solution": "Employing highly specific prompts (e.g., 'Translate this website content into X language, maintaining a professional and concise tone') and implementing a manual review/override system for critical strings."
+                                }
+                            ]
+                        }
+                    ]
+                }
             ];
             await Project.insertMany(projects);
         }

@@ -63,6 +63,7 @@ export const processChat = async (req, res) => {
             if (t.backgroundColor !== undefined) updates.$set.backgroundColor = t.backgroundColor;
             if (t.textColor !== undefined) updates.$set.textColor = t.textColor;
             if (t.fontFamily !== undefined) updates.$set.fontFamily = t.fontFamily;
+            if (t.assistantColor !== undefined) updates.$set.assistantColor = t.assistantColor;
         }
 
         // 5. Update DB atomically
@@ -121,7 +122,8 @@ export const getChatHistory = async (req, res) => {
             accentColor: session.accentColor,
             backgroundColor: session.backgroundColor,
             textColor: session.textColor,
-            fontFamily: session.fontFamily
+            fontFamily: session.fontFamily,
+            assistantColor: session.assistantColor
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

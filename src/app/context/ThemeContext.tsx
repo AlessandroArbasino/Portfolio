@@ -7,6 +7,7 @@ export interface Theme {
     fontFamily: string;
     backgroundColor?: string;
     textColor?: string;
+    assistantColor?: string;
 }
 
 interface ThemeContextType {
@@ -53,6 +54,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             root.style.setProperty('--accent-foreground', getContrastColor(newTheme.accentColor));
         }
 
+        if (newTheme.assistantColor) {
+            root.style.setProperty('--assistant', newTheme.assistantColor);
+            root.style.setProperty('--assistant-foreground', getContrastColor(newTheme.assistantColor));
+        }
+
         if (newTheme.fontFamily) {
             root.style.setProperty('--font-family-sans', newTheme.fontFamily);
             document.body.style.fontFamily = newTheme.fontFamily;
@@ -75,6 +81,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         root.style.removeProperty('--primary');
         root.style.removeProperty('--secondary');
         root.style.removeProperty('--accent');
+        root.style.removeProperty('--assistant');
         document.body.style.removeProperty('font-family');
     };
 

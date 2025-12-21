@@ -300,7 +300,14 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
             className="fixed bottom-24 right-6 z-40 w-[calc(100vw-3rem)] max-w-md"
             style={fontStyle}
           >
-            <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+            <div
+              className="backdrop-blur-xl rounded-2xl border shadow-2xl overflow-hidden"
+              style={{
+                backgroundColor: theme?.backgroundColor ? `${theme.backgroundColor}f2` : 'rgba(0, 0, 0, 0.8)',
+                borderColor: theme?.primaryColor ? `${theme.primaryColor}33` : 'rgba(255, 255, 255, 0.2)',
+                color: theme?.textColor || '#ffffff'
+              }}
+            >
               {/* Header */}
               <div
                 className="px-6 py-4"
@@ -322,19 +329,25 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
                     animate={{ opacity: 1, x: 0 }}
                     style={msg.role === 'user' ? {
                       backgroundColor: primaryColor,
-                      color: '#fff', // Always white on primary color bubbles
+                      color: '#fff',
                       marginLeft: 'auto'
                     } : {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      color: textColor || '#fff'
+                      backgroundColor: theme?.assistantColor || (theme?.backgroundColor ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)'),
+                      color: theme?.assistantColor ? '#ffffff' : (theme?.textColor || '#ffffff'),
+                      border: theme?.assistantColor ? 'none' : `1px solid ${theme?.primaryColor}20`
                     }}
-                    className={`max-w-[80%] p-3 rounded-lg text-sm`}
+                    className={`max-w-[80%] p-3 rounded-lg text-sm shadow-sm`}
                   >
                     <p>{msg.content}</p>
                   </motion.div>
                 ))}
                 {isLoading && (
-                  <div className="text-white/60 text-xs italic">Sta scrivendo...</div>
+                  <div
+                    className="text-xs italic opacity-60"
+                    style={{ color: theme?.textColor || '#ffffff' }}
+                  >
+                    Sta scrivendo...
+                  </div>
                 )}
               </div>
 
@@ -346,7 +359,12 @@ export function AIChatButton({ showWelcome = true, initialHistory, onBackgroundC
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={translations.placeholder}
-                    className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors"
+                    className="flex-1 rounded-lg px-4 py-2 placeholder-white/40 focus:outline-none transition-colors border"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderColor: theme?.primaryColor ? `${theme.primaryColor}40` : 'rgba(255, 255, 255, 0.2)',
+                      color: theme?.textColor || '#ffffff'
+                    }}
                   />
                   <button
                     type="submit"

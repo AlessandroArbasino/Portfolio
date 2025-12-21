@@ -87,6 +87,7 @@ function StartupInitializer({ onBackground, onHistory, onLoaded }: {
         if (data.fontFamily) theme.fontFamily = data.fontFamily;
         if (data.backgroundColor) theme.backgroundColor = data.backgroundColor;
         if (data.textColor) theme.textColor = data.textColor;
+        if (data.assistantColor) theme.assistantColor = data.assistantColor;
         if (Object.keys(theme).length > 0) {
           updateTheme(theme);
         }

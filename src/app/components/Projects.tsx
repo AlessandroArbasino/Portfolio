@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Github, ExternalLink } from 'lucide-react';
 import Slider from 'react-slick';
@@ -14,8 +14,28 @@ export function Projects() {
   const [expandedSubProject, setExpandedSubProject] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const projectRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const subProjectRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
   const { language, fixedTexts } = useLanguage();
   const t = fixedTexts?.projects;
+
+  useEffect(() => {
+    if (expandedProject && projectRefs.current[expandedProject]) {
+      setTimeout(() => {
+        projectRefs.current[expandedProject]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
+  }, [expandedProject]);
+
+  useEffect(() => {
+    if (expandedSubProject && subProjectRefs.current[expandedSubProject]) {
+      setTimeout(() => {
+        subProjectRefs.current[expandedSubProject]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 400);
+    }
+  }, [expandedSubProject]);
 
   useEffect(() => {
     setLoading(true);
@@ -72,10 +92,14 @@ export function Projects() {
           {projects.map((project, index) => (
             <motion.div
               key={project.id}
+              ref={(el: HTMLDivElement | null) => {
+                if (el) projectRefs.current[project.id] = el;
+              }}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
+              style={{ scrollMarginTop: '100px' }}
               className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden"
             >
               <button
@@ -108,7 +132,7 @@ export function Projects() {
                       <div className="pt-4">
                         {/* Image Carousel */}
                         {project.images && project.images.length > 0 && (
-                          <div className="mb-4 project-slider">
+                          <div className="mb-4 project-slider px-10">
                             <Slider {...sliderSettings}>
                               {project.images.map((image, idx) => (
                                 <div key={idx} className="px-1">
@@ -206,6 +230,10 @@ export function Projects() {
                             {project.subProjects.map((subProject) => (
                               <div
                                 key={subProject.id}
+                                ref={(el: HTMLDivElement | null) => {
+                                  if (el) subProjectRefs.current[subProject.id] = el;
+                                }}
+                                style={{ scrollMarginTop: '120px' }}
                                 className="bg-white/5 rounded-lg border border-white/10 overflow-hidden"
                               >
                                 <button
@@ -234,7 +262,7 @@ export function Projects() {
                                       <div className="px-4 pb-3 border-t border-white/10">
                                         {/* SubProject Image Carousel */}
                                         {subProject.images && subProject.images.length > 0 && (
-                                          <div className="mt-3 mb-3 subproject-slider">
+                                          <div className="mt-3 mb-3 subproject-slider px-10">
                                             <Slider {...sliderSettings}>
                                               {subProject.images.map((image, idx) => (
                                                 <div key={idx} className="px-1">

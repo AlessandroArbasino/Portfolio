@@ -16,6 +16,7 @@ const chatSessionSchema = new mongoose.Schema({
     backgroundColor: { type: String },
     textColor: { type: String },
     fontFamily: { type: String },
+    assistantColor: { type: String },
     messages: [messageSchema]
 }, { timestamps: true });
 

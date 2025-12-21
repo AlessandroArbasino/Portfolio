@@ -203,6 +203,7 @@ export const fetchChatHistory = async (): Promise<{
     backgroundColor?: string;
     textColor?: string;
     fontFamily?: string;
+    assistantColor?: string;
 }> => {
     const response = await fetch(`/api/chat`, { credentials: 'include' });
     if (!response.ok) {

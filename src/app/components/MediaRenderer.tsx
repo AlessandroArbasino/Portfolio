@@ -31,6 +31,11 @@ export const isVideo = (url: string) => {
 };
 
 export function MediaRenderer({ src, alt, className, style, ...rest }: MediaRendererProps) {
+    // Use object-contain for all media to respect original aspect ratio without zooming
+    const normalizedClassName = className?.includes('object-cover')
+        ? className.replace('object-cover', 'object-contain')
+        : className;
+
     if (isVideo(src)) {
         // Extract video-compatible props from rest to avoid React type warnings/errors
         const {
@@ -43,15 +48,10 @@ export function MediaRenderer({ src, alt, className, style, ...rest }: MediaRend
             ...videoProps
         } = rest as any;
 
-        // Use object-contain for videos to respect original aspect ratio without zooming
-        const videoClassName = className?.includes('object-cover')
-            ? className.replace('object-cover', 'object-contain')
-            : className;
-
         return (
             <video
                 src={src}
-                className={videoClassName}
+                className={normalizedClassName}
                 style={style}
                 autoPlay
                 muted
@@ -66,7 +66,7 @@ export function MediaRenderer({ src, alt, className, style, ...rest }: MediaRend
         <ImageWithFallback
             src={src}
             alt={alt}
-            className={className}
+            className={normalizedClassName}
             style={style}
             {...rest}
         />

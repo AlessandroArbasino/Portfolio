@@ -132,7 +132,7 @@ export function Projects() {
                       <div className="pt-4">
                         {/* Image Carousel */}
                         {project.images && project.images.length > 0 && (
-                          <div className="mb-4 project-slider px-10">
+                          <div className="mb-4 project-slider md:px-10 px-2">
                             <Slider {...sliderSettings}>
                               {project.images.map((image, idx) => (
                                 <div key={idx} className="px-1">
@@ -262,7 +262,7 @@ export function Projects() {
                                       <div className="px-4 pb-3 border-t border-white/10">
                                         {/* SubProject Image Carousel */}
                                         {subProject.images && subProject.images.length > 0 && (
-                                          <div className="mt-3 mb-3 subproject-slider px-10">
+                                          <div className="mt-3 mb-3 subproject-slider md:px-10 px-2">
                                             <Slider {...sliderSettings}>
                                               {subProject.images.map((image, idx) => (
                                                 <div key={idx} className="px-1">

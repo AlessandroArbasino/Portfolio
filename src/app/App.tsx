@@ -11,6 +11,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
 import { Loading } from './components/Loading';
+import { MediaModal } from './components/MediaModal';
 import { fetchChatHistory, getBackgroundImages, saveTheme } from '../api';
 import { extractPalette } from '../utils/colorExtractor';
 
@@ -75,6 +76,9 @@ export default function App() {
 
         {/* AI Chat Button */}
         <AIChatButton onBackgroundChange={handleBackgroundChange} initialHistory={initialChatHistory || undefined} />
+
+        {/* Media Modal for Full Screen Viewing */}
+        <MediaModal />
       </div>
     </>
   );

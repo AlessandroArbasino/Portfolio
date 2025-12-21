@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getBackgroundImages } from '../../api';
+import { isVideo } from '../../utils/mediaUtils';
 
 interface VideoBackgroundProps {
   forcedUrl: string | null;
@@ -13,17 +14,6 @@ export function VideoBackground({ forcedUrl }: VideoBackgroundProps) {
       setCurrentUrl(forcedUrl);
     }
   }, [forcedUrl]);
-
-  // Simple heuristic: Unsplash links are images, Pexels video links usually end in .mp4 or are clearly not unsplash images.
-  // We can also check extensions, but Pexels API links might differ. 
-  // Code in controller ensures pexels links are likely .mp4 (link property).
-  // Safest check: assume video unless known image domain or extension.
-  const isVideo = (url: string) => {
-    if (!url) return false;
-    if (url.includes('images.unsplash.com')) return false;
-    if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) return false;
-    return true; // Assume video for Pexels URLs
-  };
 
   return (
     <div className="fixed inset-0 w-full h-full -z-10 bg-slate-900">

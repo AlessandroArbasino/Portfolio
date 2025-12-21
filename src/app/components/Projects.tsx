@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Github, ExternalLink } from 'lucide-react';
 import Slider from 'react-slick';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { MediaRenderer } from './MediaRenderer';
 
 
 
@@ -137,7 +137,7 @@ export function Projects() {
                               {project.images.map((image, idx) => (
                                 <div key={idx} className="px-1">
                                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                                    <ImageWithFallback
+                                    <MediaRenderer
                                       src={image}
                                       alt={`${project.name} - Image ${idx + 1}`}
                                       className="w-full h-full object-cover"
@@ -267,7 +267,7 @@ export function Projects() {
                                               {subProject.images.map((image, idx) => (
                                                 <div key={idx} className="px-1">
                                                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                                                    <ImageWithFallback
+                                                    <MediaRenderer
                                                       src={image}
                                                       alt={`${subProject.name} - Image ${idx + 1}`}
                                                       className="w-full h-full object-cover"

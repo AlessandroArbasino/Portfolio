@@ -282,10 +282,6 @@ const seedData = async () => {
         });
 
         await seedSection('about', {
-            title: "Chi Sono",
-            greeting: "Ciao, sono Alessandro!",
-            description1: "Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.",
-            description2: "Quando non scrivo codice, mi trovi a esplorare nuove tecnologie, contribuire a progetti open source o semplicemente a godermi un buon caffè.",
             years: "Anni",
             experience: "di Esperienza",
             projects: "Progetti",
@@ -347,9 +343,9 @@ const seedData = async () => {
                 language: 'it',
                 name: 'Alessandro Arbasino',
                 title: 'Full Stack Developer',
-                description: 'Sviluppatore appassionato con esperienza in React, Node.js e architetture cloud. Amo trasformare idee complesse in interfacce utente intuitive e scalabili.',
-                greeting: 'Ciao, sono Alessandro! ',
-                imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80', // Placeholder
+                description: 'Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.',
+                greeting: 'Ciao, sono Alessandro!',
+                imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
                 socialLinks: {
                     github: 'https://github.com/mario-rossi',
                     linkedin: 'https://linkedin.com/in/mario-rossi'

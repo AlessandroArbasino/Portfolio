@@ -110,12 +110,9 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="flex flex-col justify-center"
           >
-            <h3 className="text-white mb-4">{profile?.greeting || t?.greeting || 'Hello there!'}</h3>
-            <p className="text-white/70 mb-4 leading-relaxed">
-              {profile?.description || t?.description1 || 'I am a passionate developer...'}
-            </p>
-            <p className="text-white/70 mb-6 leading-relaxed">
-              {t?.description2 || ''}
+            <h3 className="text-white mb-4">{profile?.greeting || 'Hello there!'}</h3>
+            <p className="text-white/70 mb-6 leading-relaxed whitespace-pre-line">
+              {profile?.description || 'I am a passionate developer...'}
             </p>
 
             {/* Highlights */}

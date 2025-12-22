@@ -2,111 +2,136 @@ import Project from '../models/Project.js';
 import FixedText from '../models/FixedText.js';
 import { translateContent } from '../services/geminiService.js';
 
-export const translateItem = async (req, res) => {
+export const translateFixedTexts = async (req, res) => {
     try {
-        const { id, type } = req.body;
-        const targetLanguages = ['en', 'es', 'fr', 'de'];
+        const { id, lang } = req.query;
 
-        if (!id || !type) {
-            return res.status(400).json({ message: 'ID and type (project/fixed) are required' });
+        if (!lang) {
+            return res.status(400).json({ message: 'Target language (lang) is required' });
         }
 
-        let sourceDoc;
-        let Model;
-        let idField;
-
-        // 1. Fetch Source Document
-        if (type === 'project') {
-            Model = Project;
-            idField = 'id';
-            sourceDoc = await Project.findOne({ id });
-        } else if (type === 'fixed') {
-            Model = FixedText;
-            idField = 'section';
-            sourceDoc = await FixedText.findOne({ section: id });
-        } else {
-            return res.status(400).json({ message: 'Invalid type. Use "project" or "fixed"' });
+        const query = { language: 'it' };
+        if (id) {
+            query.section = id;
         }
 
-        if (!sourceDoc) {
-            return res.status(404).json({ message: 'Document not found' });
-        }
 
-        const sourceData = sourceDoc.toObject();
-        delete sourceData._id;
-        delete sourceData.createdAt;
-        delete sourceData.updatedAt;
-        delete sourceData.__v;
+        const englishTexts = await FixedText.find(query);
+
+        if (englishTexts.length === 0) {
+            return res.status(404).json({ message: 'No English fixed texts found' });
+        }
 
         const results = [];
-
-        // 2. Iterate Languages
-        for (const lang of targetLanguages) {
+        for (const doc of englishTexts) {
             try {
-                // 3. Translate
-                // We pass the whole object. Gemini is instructed to translate values.
-                // We trust the prompt to handle URLs/tech stacks reasonably well or we accept minor over-translation risks 
-                // as per "pass whole body" instruction.
-                const translatedData = await translateContent(sourceData, lang);
+                // Ensure the content (Mongoose Map) is converted to a plain object for JSON serialization
+                const contentToTranslate = doc.content instanceof Map ? Object.fromEntries(doc.content) : doc.content;
 
-                // 4. Update ID/Section & Language
-                // Append _lang to the original ID to keep it unique (though not strictly necessary for Project if filtering by lang, but good for ID unique constraint)
-                const newId = `${sourceData[idField]}_${lang}`;
-                translatedData[idField] = newId;
-                translatedData.language = lang;
+                const translatedContent = await translateContent(contentToTranslate, lang);
 
-                // 5. Save (Upsert)
-                const query = {};
-                if (type === 'project') {
-                    // For projects, we might rely on the unique ID
-                    query[idField] = newId;
-                } else {
-                    // For FixedText, we use the compound index section + language
-                    // But we modified the ID to include _lang so assuming we keep using that for uniqueness or query
-                    // Ideally we should match on section + language
-                    query.section = sourceData.section; // Keep original section name? 
-                    // Wait, if I change the ID in translatedData, I'm changing the 'section' field.
-                    // The requirement says "every string ... saved in db with language field".
-                    // For FixedText, section is the ID. 
-
-                    // Let's refine: 
-                    // Project: id="1_en", language="en"
-                    // FixedText: section="hero", language="en" (Compound Index)
-
-                    // So for FixedText, I SHOULD NOT change the section name if I want to query by section=hero & language=en.
-                    // BUT, previous implementation appended _lang.
-                    // User said: "In the get... I want you to add filter on language".
-
-                    // Strategy: 
-                    // Project: Keep id unique constraint, so "1_en". 
-                    // FixedText: Use section="hero" and language="en".
-
-                    if (type === 'fixed') {
-                        translatedData.section = sourceData.section; // Revert to original section name
-                        query.section = sourceData.section;
-                        query.language = lang;
-                    } else {
-                        query[idField] = newId;
-                    }
-                }
-                const savedDoc = await Model.findOneAndUpdate(
-                    query,
-                    translatedData,
+                await FixedText.findOneAndUpdate(
+                    { section: doc.section, language: lang },
+                    {
+                        section: doc.section,
+                        language: lang,
+                        content: translatedContent
+                    },
                     { new: true, upsert: true }
                 );
 
-                results.push({ lang, status: 'success', id: newId });
-
+                results.push({ section: doc.section, status: 'success' });
             } catch (err) {
-                console.error(`Translation failed for ${lang}`, err);
-                results.push({ lang, status: 'error', error: err.message });
+                console.error(`Translation failed for section ${doc.section}`, err);
+                results.push({ section: doc.section, status: 'error', error: err.message });
             }
         }
 
-        res.json({ message: 'Translation process completed', results });
-
+        res.json({ message: 'Fixed texts translation completed', results });
     } catch (error) {
-        console.error('Translate Controller Error:', error);
+        console.error('Translate Fixed Texts Error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const translateProjects = async (req, res) => {
+    try {
+        const { id, lang } = req.query;
+
+        if (!id || !lang) {
+            return res.status(400).json({ message: 'Project ID and target language (lang) are required' });
+        }
+
+        let projectId = `${id}_en`;
+
+        console.log(projectId);
+
+        // Always take English as source
+        const sourceDoc = await Project.findOne({ id: projectId, language: 'en' });
+
+        if (!sourceDoc) {
+            // Try to find it by ID without language filter if not found specifically with 'en'
+            // but the requirement says "sempre preso il testo in inglese"
+            return res.status(404).json({ message: 'English version of the project not found' });
+        }
+
+        const sourceData = sourceDoc.toObject();
+
+        // Extract only translatable fields
+        const contentToTranslate = {
+            name: sourceData.name,
+            description: sourceData.description,
+            challenges: sourceData.challenges?.map(c => ({
+                problem: c.problem,
+                solution: c.solution
+            })),
+            subProjects: sourceData.subProjects?.map(sp => ({
+                name: sp.name,
+                description: sp.description,
+                challenges: sp.challenges?.map(c => ({
+                    problem: c.problem,
+                    solution: c.solution
+                }))
+            }))
+        };
+
+        const translatedData = await translateContent(contentToTranslate, lang);
+
+        // Merge translated data back into source data
+        const mergedData = {
+            ...sourceData,
+            name: translatedData.name || sourceData.name,
+            description: translatedData.description || sourceData.description,
+            challenges: translatedData.challenges || sourceData.challenges,
+            subProjects: sourceData.subProjects?.map((sp, idx) => {
+                const translatedSP = translatedData.subProjects?.[idx];
+                return {
+                    ...sp,
+                    name: translatedSP?.name || sp.name,
+                    description: translatedSP?.description || sp.description,
+                    challenges: translatedSP?.challenges || sp.challenges
+                };
+            }),
+            id: `${id}_${lang}`,
+            language: lang
+        };
+
+        // Remove Mongoose-specific fields before upsert
+        delete mergedData._id;
+        delete mergedData.createdAt;
+        delete mergedData.updatedAt;
+        delete mergedData.__v;
+
+        const newId = mergedData.id;
+        const savedDoc = await Project.findOneAndUpdate(
+            { id: newId },
+            mergedData,
+            { new: true, upsert: true }
+        );
+
+        res.json({ message: 'Project translation completed', result: { id: newId, status: 'success' } });
+    } catch (error) {
+        console.error('Translate Projects Error:', error);
         res.status(500).json({ message: error.message });
     }
 };

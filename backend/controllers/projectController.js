@@ -5,7 +5,8 @@ import Project from '../models/Project.js';
 export const getProjects = async (req, res) => {
     try {
         const { lang } = req.query;
-        const projects = await Project.find({ language: lang || 'it' });
+        //order by id
+        const projects = await Project.find({ language: lang || 'it' }).sort({ id: 1 });
         res.json(projects);
     } catch (error) {
         res.status(500).json({ message: error.message });

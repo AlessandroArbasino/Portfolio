@@ -1,8 +1,9 @@
 import express from 'express';
-import { translateItem } from '../controllers/translateController.js';
+import { translateFixedTexts, translateProjects } from '../controllers/translateController.js';
 
 const router = express.Router();
 
-router.post('/', translateItem);
+router.get('/fixed', translateFixedTexts);
+router.get('/projects', translateProjects);
 
 export default router;

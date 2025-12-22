@@ -95,7 +95,7 @@ export function About() {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl blur-2xl"></div>
               <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border-2 border-white/10">
                 <ImageWithFallback
-                  src={profile?.imageUrl || "https://images.unsplash.com/photo-1737575655055-e3967cbefd03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjU4Mjk4OTB8MA&ixlib=rb-4.1.0&q=80&w=1080"}
+                  src={profile?.imageUrl}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

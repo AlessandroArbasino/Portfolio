@@ -134,8 +134,8 @@ export const getBackgroundImages = async (keywords?: string, content_type?: stri
     return response.json();
 };
 
-export const getDocuments = async (): Promise<Document[]> => {
-    const response = await fetch('/api/documents');
+export const getDocuments = async (lang: string = 'it'): Promise<Document[]> => {
+    const response = await fetch(`/api/documents?lang=${lang}`);
     if (!response.ok) {
         throw new Error('Failed to fetch documents');
     }

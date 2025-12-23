@@ -5,15 +5,19 @@ import { getDocuments, Document } from '../../api';
 import { useLanguage } from '../context/LanguageContext';
 
 export function Documents() {
-    const { fixedTexts } = useLanguage();
+    const { fixedTexts, language } = useLanguage();
     const t = fixedTexts?.documents;
     const [documents, setDocuments] = useState<Document[]>([]);
 
     useEffect(() => {
-        getDocuments()
+        getDocuments(language)
             .then((docs) => setDocuments(docs))
             .catch((err) => console.error("Failed to load documents", err));
-    }, []);
+    }, [language]);
+
+    const handleDownload = (docId: string) => {
+        window.location.href = `/api/documents/download/${docId}`;
+    };
 
     return (
         <section id="documents" className="flex flex-col justify-center px-4 py-8">
@@ -30,7 +34,7 @@ export function Documents() {
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={documents.length === 1 ? "max-w-md mx-auto" : "grid grid-cols-1 md:grid-cols-2 gap-6"}>
                     {documents.map((doc, index) => (
                         <motion.div
                             key={doc._id}
@@ -54,14 +58,13 @@ export function Documents() {
                                     >
                                         <Eye size={20} />
                                     </a>
-                                    <a
-                                        href={doc.fileUrl}
-                                        download
+                                    <button
+                                        onClick={() => handleDownload(doc._id)}
                                         className="p-2 text-white/60 hover:text-white transition-colors"
                                         title="Scarica"
                                     >
                                         <Download size={20} />
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 

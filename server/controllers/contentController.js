@@ -23,7 +23,11 @@ export const getFixedTexts = async (req, res) => {
                 doc = await FixedText.findOne({ section: sectionName, language: 'it' });
             }
 
-            return doc ? doc.content : {};
+            // If doc.content is a Map, convert it to a plain object
+            if (doc && doc.content) {
+                return doc.content instanceof Map ? Object.fromEntries(doc.content) : doc.content;
+            }
+            return {};
         };
 
         const heroContent = await getSection('hero');
@@ -31,13 +35,15 @@ export const getFixedTexts = async (req, res) => {
         const aboutContent = await getSection('about');
         const contactContent = await getSection('contact');
         const projectsContent = await getSection('projects');
+        const documentsContent = await getSection('documents');
 
         res.json({
             hero: heroContent,
             chat: chatContent,
             about: aboutContent,
             contact: contactContent,
-            projects: projectsContent
+            projects: projectsContent,
+            documents: documentsContent
         });
 
     } catch (error) {

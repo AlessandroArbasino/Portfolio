@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -22,12 +23,20 @@ import Document from './models/Document.js';
 dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3000;
+
+// Get dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Connect to Database
 connectDB();
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// CORS config for Angular dev server (4200) or production
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -57,6 +66,17 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/documents', documentRoutes);
+
+// Serve Angular static files in production
+if (process.env.NODE_ENV === 'production') {
+    const distPath = path.join(__dirname, '../dist/browser');
+    app.use(express.static(distPath));
+
+    // All other routes should serve index.html (for Angular routing)
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+}
 
 // Seeder Logic (Run once if DB is empty)
 const seedData = async () => {

@@ -330,7 +330,9 @@ const seedData = async () => {
 
         await seedSection('projects', {
             title: 'Progetti',
-            subtitle: 'Alcuni dei progetti su cui ho lavorato'
+            subtitle: 'Alcuni dei progetti su cui ho lavorato',
+            webTitle: 'Web Projects',
+            videogameTitle: 'Videogame Projects'
         });
 
         await seedSection('documents', {

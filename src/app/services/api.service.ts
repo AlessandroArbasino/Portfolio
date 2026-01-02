@@ -19,8 +19,12 @@ import {
 export class ApiService {
     constructor(private http: HttpClient) { }
 
-    getProjects(lang: string = 'it'): Observable<Project[]> {
-        return this.http.get<Project[]>(`/api/projects?lang=${lang}`);
+    getProjects(lang: string = 'it', type?: string): Observable<Project[]> {
+        let params = new HttpParams().set('lang', lang);
+        if (type) {
+            params = params.set('type', type);
+        }
+        return this.http.get<Project[]>(`/api/projects`, { params });
     }
 
     getFixedTexts(lang: string = 'it'): Observable<FixedTexts> {

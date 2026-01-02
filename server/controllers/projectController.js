@@ -4,9 +4,13 @@ import Project from '../models/Project.js';
 // @route   GET /api/projects
 export const getProjects = async (req, res) => {
     try {
-        const { lang } = req.query;
-        //order by id
-        const projects = await Project.find({ language: lang || 'it' }).sort({ id: 1 });
+        const { lang, type } = req.query;
+        // order by id
+        const query = { language: lang || 'it' };
+        if (type) {
+            query.type = type;
+        }
+        const projects = await Project.find(query).sort({ id: 1 });
         res.json(projects);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -17,7 +21,7 @@ export const getProjects = async (req, res) => {
 // @route   POST /api/projects
 export const createProject = async (req, res) => {
     try {
-        const { id, name, description, tech, github, demo, images, subProjects, challenges } = req.body;
+        const { id, name, description, tech, github, demo, images, subProjects, challenges, type } = req.body;
 
         // Check if project exists
         const projectExists = await Project.findOne({ id });
@@ -32,11 +36,10 @@ export const createProject = async (req, res) => {
             tech,
             github,
             demo,
-            github,
-            demo,
             images,
             challenges,
-            subProjects
+            subProjects,
+            type
         });
 
         res.status(201).json(project);

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -55,7 +55,7 @@ import { ChatMessage, FixedTexts } from '../../models/api.models';
     }
 
     <!-- Chat Button -->
-    <div [@scaleIn] class="fixed bottom-6 right-6 z-50">
+    <div [@scaleIn] class="fixed bottom-6 right-6 z-40">
       <!-- Pulse rings -->
       @if (showBadge && !isOpen) {
         <div [@fadeAnimation] class="absolute inset-0 pointer-events-none">
@@ -233,8 +233,21 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private themeService: ThemeService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private elementRef: ElementRef
   ) { }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.isOpen) return;
+
+    const target = event.target as HTMLElement;
+    const clickedInside = this.elementRef.nativeElement.contains(target);
+
+    if (!clickedInside) {
+      this.closeChat();
+    }
+  }
 
   ngOnInit(): void {
     // Load translations first
@@ -305,14 +318,29 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.classList.remove('chat-open');
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   toggleChat(): void {
-    this.isOpen = !this.isOpen;
+    if (this.isOpen) {
+      this.closeChat();
+    } else {
+      this.openChat();
+    }
+  }
+
+  openChat(): void {
+    this.isOpen = true;
     this.showTooltip = false;
     this.showBadge = false;
+    document.body.classList.add('chat-open');
+  }
+
+  closeChat(): void {
+    this.isOpen = false;
+    document.body.classList.remove('chat-open');
   }
 
   handleSubmit(event: Event): void {

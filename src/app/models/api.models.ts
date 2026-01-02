@@ -24,6 +24,7 @@ export interface Project {
         solution: string;
     }[];
     subProjects?: SubProject[];
+    type: 'web' | 'videogame';
 }
 
 export interface FixedTexts {
@@ -65,6 +66,8 @@ export interface FixedTexts {
     projects: {
         title: string;
         subtitle: string;
+        webTitle: string;
+        videogameTitle: string;
     };
     documents: {
         title: string;

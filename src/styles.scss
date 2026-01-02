@@ -161,6 +161,21 @@ body {
   right: -35px;
 }
 
+/* Hide arrows when AI Chat is open to avoid overlap */
+body.chat-open .project-slider .slick-prev,
+body.chat-open .project-slider .slick-next {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.1s ease !important;
+}
+
+/* Hide AI Chat button when modal is open */
+body.modal-open app-ai-chat-button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
 .project-slider .slick-prev:before,
 .project-slider .slick-next:before {
   color: rgba(255, 255, 255, 0.8);

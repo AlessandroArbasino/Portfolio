@@ -6,10 +6,10 @@ import { MediaService } from '../../services/media.service';
 import { MediaItem } from '../../models/api.models';
 
 @Component({
-    selector: 'app-media-modal',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-media-modal',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     @if (isOpen && currentMedia) {
       <div 
         [@fadeAnimation]
@@ -51,55 +51,63 @@ import { MediaItem } from '../../models/api.models';
       </div>
     }
   `,
-    styles: [`
+  styles: [`
     :host {
       display: contents;
     }
   `],
-    animations: [
-        trigger('fadeAnimation', [
-            transition(':enter', [
-                style({ opacity: 0 }),
-                animate('200ms', style({ opacity: 1 }))
-            ]),
-            transition(':leave', [
-                animate('200ms', style({ opacity: 0 }))
-            ])
-        ]),
-        trigger('scaleAnimation', [
-            transition(':enter', [
-                style({ transform: 'scale(0.9)', opacity: 0 }),
-                animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'scale(1)', opacity: 1 }))
-            ]),
-            transition(':leave', [
-                animate('200ms', style({ transform: 'scale(0.9)', opacity: 0 }))
-            ])
-        ])
-    ]
+  animations: [
+    trigger('fadeAnimation', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('scaleAnimation', [
+      transition(':enter', [
+        style({ transform: 'scale(0.9)', opacity: 0 }),
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'scale(1)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms', style({ transform: 'scale(0.9)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class MediaModalComponent implements OnInit, OnDestroy {
-    isOpen = false;
-    currentMedia: MediaItem | null = null;
-    private destroy$ = new Subject<void>();
+  isOpen = false;
+  currentMedia: MediaItem | null = null;
+  private destroy$ = new Subject<void>();
 
-    constructor(private mediaService: MediaService) { }
+  constructor(private mediaService: MediaService) { }
 
-    ngOnInit(): void {
-        this.mediaService.isOpen$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(isOpen => this.isOpen = isOpen);
+  ngOnInit(): void {
+    this.mediaService.isOpen$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isOpen => {
+        this.isOpen = isOpen;
+        if (isOpen) {
+          document.body.classList.add('modal-open');
+        } else {
+          document.body.classList.remove('modal-open');
+        }
+      });
 
-        this.mediaService.currentMedia$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(media => this.currentMedia = media);
-    }
+    this.mediaService.currentMedia$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(media => this.currentMedia = media);
+  }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+  ngOnDestroy(): void {
+    document.body.classList.remove('modal-open');
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    close(): void {
-        this.mediaService.closeMedia();
-    }
+  close(): void {
+    this.mediaService.closeMedia();
+  }
 }

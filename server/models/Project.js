@@ -26,7 +26,8 @@ const projectSchema = new mongoose.Schema({
         solution: String
     }],
     subProjects: [subProjectSchema],
-    language: { type: String, required: true, default: 'it' }
+    language: { type: String, required: true, default: 'it' },
+    type: { type: String, enum: ['web', 'videogame'], default: 'web' }
 }, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);

@@ -1,6 +1,6 @@
 import {
   DOCUMENT
-} from "./chunk-L4L632M7.js";
+} from "./chunk-W2BAPFRP.js";
 import {
   ANIMATION_MODULE_TYPE,
   Inject,
@@ -12,7 +12,7 @@ import {
   setClassMetadata,
   ɵɵdefineInjectable,
   ɵɵinject
-} from "./chunk-7XA6G6KX.js";
+} from "./chunk-TL4DGONE.js";
 
 // node_modules/@angular/animations/fesm2022/animations.mjs
 var AnimationMetadataType;
@@ -543,4 +543,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-FMNPNRSK.js.map
+//# sourceMappingURL=chunk-3TN7DSLZ.js.map

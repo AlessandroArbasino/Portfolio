@@ -102,7 +102,7 @@ import { ChatMessage, FixedTexts } from '../../models/api.models';
           [style.border-color]="primaryColor + '33'"
         >
           <!-- Header -->
-          <div class="px-6 py-4" [ngStyle]="gradientStyle">
+          <div class="px-6 py-4" [ngStyle]="headerStyle">
             <div class="flex items-center gap-2 mb-1">
               <svg class="w-5 h-5" [style.color]="headerTextColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -120,9 +120,9 @@ import { ChatMessage, FixedTexts } from '../../models/api.models';
                 class="max-w-[85%] p-3.5 rounded-2xl shadow-md"
                 [class.ml-auto]="msg.role === 'user'"
                 [ngStyle]="{
-                  backgroundColor: msg.role === 'user' ? primaryColor : 'rgba(255, 255, 255, 0.12)',
-                  color: msg.role === 'user' ? buttonTextColor : '#ffffff',
-                  border: msg.role === 'user' ? 'none' : '1px solid rgba(255, 255, 255, 0.1)'
+                  backgroundColor: msg.role === 'user' ? primaryColor : assistantColor + '1F',
+                  color: msg.role === 'user' ? buttonTextColor : textColor,
+                  border: msg.role === 'user' ? 'none' : '1px solid ' + assistantColor + '33'
                 }"
               >
                 <p class="whitespace-pre-wrap text-sm">{{ msg.content }}</p>
@@ -358,10 +358,6 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
         next: (result) => {
           this.chatHistory.push({ role: 'assistant', content: result.response });
 
-          if (result.theme) {
-            this.themeService.updateTheme(result.theme);
-          }
-
           if (result.backgroundUrl) {
             this.backgroundChange.emit({
               url: result.backgroundUrl,
@@ -395,6 +391,14 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
     return this.themeService.currentTheme?.accentColor || '#ef4444';
   }
 
+  get assistantColor(): string {
+    return this.themeService.currentTheme?.assistantColor || this.primaryColor;
+  }
+
+  get textColor(): string {
+    return this.themeService.currentTheme?.textColor || '#ffffff';
+  }
+
   get fontFamily(): string | undefined {
     return this.themeService.currentTheme?.fontFamily;
   }
@@ -425,6 +429,12 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
 
   get headerTextColor(): string {
     return this.themeService.getContrastColor(this.primaryColor);
+  }
+
+  get headerStyle(): any {
+    return {
+      background: `linear-gradient(135deg, ${this.assistantColor}, ${this.secondaryColor})`
+    };
   }
 
   get buttonStyle(): any {

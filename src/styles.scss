@@ -182,3 +182,42 @@ body.modal-open app-ai-chat-button {
 .project-slider .slick-dots li.slick-active button:before {
   color: rgba(255, 255, 255, 0.9);
 }
+
+/* Media Loading Animation */
+.media-loader-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 5;
+  border-radius: inherit;
+  transition: opacity 0.3s ease;
+}
+
+.media-loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: media-spin 0.8s linear infinite;
+}
+
+@keyframes media-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.media-hidden {
+  opacity: 0;
+}
+
+.media-visible {
+  opacity: 1 !important;
+  transition: opacity 0.4s ease-out;
+}

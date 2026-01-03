@@ -17,9 +17,25 @@ export class MediaService {
     /**
      * Open media modal with given URL and type
      */
-    openMedia(url: string, type: 'image' | 'video'): void {
-        this.currentMediaSubject.next({ url, type });
+    openMedia(url: string, type: 'image' | 'video', startTime: number = 0): void {
+        this.currentMediaSubject.next({ url, type, startTime });
         this.isOpenSubject.next(true);
+    }
+
+    /**
+     * Centralized utility to optimize Cloudinary URLs
+     */
+    getOptimizedUrl(url: string, type: 'image' | 'video'): string {
+        if (!url || !url.includes('cloudinary.com')) return url;
+
+        // Cloudinary optimization: q_auto (quality auto), f_auto (format auto)
+        // For videos also add vc_auto (video codec auto)
+        const optimization = type === 'video' ? 'q_auto,f_auto,vc_auto' : 'q_auto,f_auto';
+
+        if (url.includes('/upload/')) {
+            return url.replace('/upload/', `/upload/${optimization}/`);
+        }
+        return url;
     }
 
     /**

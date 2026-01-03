@@ -47,10 +47,11 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                   >
                     @for (image of project.images; track $index) {
                       <div ngxSlickItem class="px-1">
-                        <div class="relative aspect-video rounded-lg overflow-hidden">
+                        <div class="relative h-[300px] md:h-[450px] bg-black/20 rounded-lg overflow-hidden flex items-center justify-center">
                           <app-media-renderer
                             [url]="image"
-                            [type]="'image'"
+                            [type]="getMediaType(image)"
+                            [autoplay]="true"
                             (mediaClick)="onMediaClick($event)"
                           />
                         </div>
@@ -163,10 +164,11 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                                 >
                                   @for (image of subProject.images; track $index) {
                                     <div ngxSlickItem class="px-1">
-                                      <div class="relative aspect-video rounded-lg overflow-hidden">
+                                      <div class="relative h-[250px] md:h-[350px] bg-black/20 rounded-lg overflow-hidden flex items-center justify-center">
                                         <app-media-renderer
                                           [url]="image"
-                                          [type]="'image'"
+                                          [type]="getMediaType(image)"
+                                          [autoplay]="true"
                                           (mediaClick)="onMediaClick($event)"
                                         />
                                       </div>
@@ -250,6 +252,13 @@ export class ProjectItemComponent {
   @Output() mediaClick = new EventEmitter<{ url: string, type: 'image' | 'video' }>();
 
   expandedSubProject: string | null = null;
+
+  getMediaType(url: string): 'image' | 'video' {
+    if (!url) return 'image';
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
+    const isVideo = videoExtensions.some(ext => url.toLowerCase().endsWith(ext)) || url.toLowerCase().includes('video');
+    return isVideo ? 'video' : 'image';
+  }
 
   slideConfig = {
     dots: true,

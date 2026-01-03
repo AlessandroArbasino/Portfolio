@@ -1,8 +1,53 @@
 import ChatSession from '../models/ChatSession.js';
 import FixedText from '../models/FixedText.js';
 import { getGeminiResponse } from '../services/geminiService.js';
-import axios from 'axios';
 import { searchVideos } from '../utils/pexels.js';
+import axios from 'axios';
+
+const INITIAL_MOODS = [
+    {
+        name: 'tech',
+        keywords: 'digital nexus cyberpunk data high-tech grid',
+        welcomeMessages: {
+            it: "Ciao! Ho impostato un'atmosfera tecnologica e futuristica per la tua visita. Come posso aiutarti?",
+            en: "Hi! I've set a technological and futuristic atmosphere for your visit. How can I help you?"
+        }
+    },
+    {
+        name: 'minimal',
+        keywords: 'minimal abstract architecture clean white bright',
+        welcomeMessages: {
+            it: "Benvenuto. Ho scelto un look pulito e minimale per oggi. Cosa desideri sapere?",
+            en: "Welcome. I've chosen a clean and minimal look for today. What would you like to know?"
+        }
+    },
+    {
+        name: 'deep_sea',
+        keywords: 'abstract dark blue water ocean wave',
+        welcomeMessages: {
+            it: "Ciao! Mi sento ispirato dalle profondità dell'oceano. Ho adattato il sito di conseguenza. Dimmi pure!",
+            en: "Hi! I'm feeling inspired by the deep ocean today. I've adjusted the site accordingly. Let me know what you need!"
+        }
+    },
+    {
+        name: 'vibrant',
+        keywords: 'abstract colorful liquid gradient neon',
+        welcomeMessages: {
+            it: "Ehi! Ho caricato il sito con un'esplosione di colori ed energia. Come posso esserti utile?",
+            en: "Hey! I've charged the site with an explosion of colors and energy. How can I be of service?"
+        }
+    }
+];
+
+const processPexelsVideo = (videos) => {
+    if (!videos || videos.length === 0) return { backgroundUrl: null, thumbnailUrl: null };
+    const random = videos[Math.floor(Math.random() * videos.length)];
+    const vidFile = random.video_files.find(f => f.quality === 'hd') || random.video_files[0];
+    return {
+        backgroundUrl: vidFile ? vidFile.link : random.image,
+        thumbnailUrl: random.image
+    };
+};
 
 // @desc    Process chat message
 // @route   POST /api/chat
@@ -40,34 +85,22 @@ export const processChat = async (req, res) => {
             try {
                 console.log("Gemini Keywords:", aiResult.keywords);
                 const videos = await searchVideos(aiResult.keywords, process.env.PEXELS_VIDEOS_NUMBER);
-                if (videos && videos.length > 0) {
-                    const random = videos[Math.floor(Math.random() * videos.length)];
-                    const vidFile = random.video_files.find(f => f.quality === 'hd') || random.video_files[0];
-                    backgroundUrl = vidFile ? vidFile.link : random.image;
-                    thumbnailUrl = random.image; // Pexels returns a 'image' property which is the thumbnail
+                const { backgroundUrl: bUrl, thumbnailUrl: tUrl } = processPexelsVideo(videos);
 
+                if (bUrl) {
+                    backgroundUrl = bUrl;
+                    thumbnailUrl = tUrl;
                     console.log("Background URL:", backgroundUrl);
-                    if (backgroundUrl) {
-                        updates.$set.backgroundUrl = backgroundUrl;
-                        updates.$set.thumbnailUrl = thumbnailUrl;
-                    }
+                    updates.$set.backgroundUrl = backgroundUrl;
+                    updates.$set.thumbnailUrl = thumbnailUrl;
                 }
             } catch (pexError) {
                 console.error('Pexels Search Error in Chat:', pexError.message);
             }
         }
 
-        // Persist AI-proposed theme
-        if (aiResult && aiResult.theme) {
-            const t = aiResult.theme;
-            if (t.primaryColor !== undefined) updates.$set.primaryColor = t.primaryColor;
-            if (t.secondaryColor !== undefined) updates.$set.secondaryColor = t.secondaryColor;
-            if (t.accentColor !== undefined) updates.$set.accentColor = t.accentColor;
-            if (t.backgroundColor !== undefined) updates.$set.backgroundColor = t.backgroundColor;
-            if (t.textColor !== undefined) updates.$set.textColor = t.textColor;
-            if (t.fontFamily !== undefined) updates.$set.fontFamily = t.fontFamily;
-            if (t.assistantColor !== undefined) updates.$set.assistantColor = t.assistantColor;
-        }
+        // AI themes are no longer persisted here; the frontend will derive colors from the video
+        // and send them back via updateSessionTheme if needed.
 
         // 5. Update DB atomically
         session = await ChatSession.findOneAndUpdate(
@@ -80,7 +113,6 @@ export const processChat = async (req, res) => {
             response: aiResult.text,
             mood: aiResult.mood,
             keywords: aiResult.keywords,
-            theme: aiResult.theme,
             backgroundUrl: session.backgroundUrl || backgroundUrl,
             thumbnailUrl: session.thumbnailUrl || thumbnailUrl
         });
@@ -96,25 +128,30 @@ export const processChat = async (req, res) => {
 export const getChatHistory = async (req, res) => {
     try {
         const sessionId = req.sessionId;
-        // 1. Retrieve or Create Session
         let session = await ChatSession.findOne({ sessionId });
+
+        // Pick a random mood as default if needed
+        const randomMood = INITIAL_MOODS[Math.floor(Math.random() * INITIAL_MOODS.length)];
+
         if (!session) {
-            // Fetch initial message from DB (default to Italian or fallback)
-            let initialMsg = 'Ciao! Come posso aiutarti oggi?';
+            // New session initialization - Synchronously fetch initial background
+            let backgroundUrl = null;
+            let thumbnailUrl = null;
+
             try {
-                const fixed = await FixedText.findOne({ section: 'chat', language: 'it' });
-                if (fixed && fixed.content && fixed.content.get('initialMessage')) {
-                    initialMsg = fixed.content.get('initialMessage');
-                }
+                const videos = await searchVideos(randomMood.keywords, 3);
+                const result = processPexelsVideo(videos);
+                backgroundUrl = result.backgroundUrl;
+                thumbnailUrl = result.thumbnailUrl;
             } catch (e) {
-                console.error('Failed to fetch initial chat message:', e);
+                console.error('Initial background search error:', e);
             }
 
             session = await ChatSession.create({
                 sessionId,
-                messages: [
-                    { role: 'assistant', content: initialMsg }
-                ]
+                messages: [{ role: 'assistant', content: randomMood.welcomeMessages.it }],
+                backgroundUrl,
+                thumbnailUrl
             });
         }
 
@@ -152,6 +189,7 @@ export const updateSessionTheme = async (req, res) => {
         if (theme.backgroundColor !== undefined) updates.backgroundColor = theme.backgroundColor;
         if (theme.textColor !== undefined) updates.textColor = theme.textColor;
         if (theme.fontFamily !== undefined) updates.fontFamily = theme.fontFamily;
+        if (theme.assistantColor !== undefined) updates.assistantColor = theme.assistantColor;
 
         const session = await ChatSession.findOneAndUpdate(
             { sessionId },

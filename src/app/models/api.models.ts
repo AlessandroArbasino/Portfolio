@@ -173,4 +173,5 @@ export interface ExtractedPalette {
 export interface MediaItem {
     url: string;
     type: 'image' | 'video';
+    startTime?: number;
 }

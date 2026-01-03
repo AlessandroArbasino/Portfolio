@@ -139,8 +139,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
 
 
-  openMedia(event: { url: string, type: 'image' | 'video' }): void {
-    this.mediaService.openMedia(event.url, event.type);
+  openMedia(event: { url: string, type: 'image' | 'video', startTime?: number }): void {
+    this.mediaService.openMedia(event.url, event.type, event.startTime);
   }
 }
 

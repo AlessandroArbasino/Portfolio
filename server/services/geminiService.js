@@ -23,28 +23,15 @@ export const getGeminiResponse = async (history, message) => {
             Instructions:
             1. Analyze the user's message to determine the desired mood (e.g., "dark", "energetic", "calm", "professional").
             2. Select 3-5 keywords for searching a relevant background video on Pexels.
-            3. Define a sophisticated color theme (hex codes) and font family.
-            4. **CRITICAL: ACCESSIBILITY**: You ARE responsible for text readability. 
-               - Select a \`textColor\` that contrasts strongly with \`backgroundColor\`.
-               - Select \`primaryColor\` and \`secondaryColor\` for UI elements that are vibrant yet professional.
-            5. **Agent Response (text)**: Write a short, meta-commentary response describing *how* you are changing the site. Do NOT answer as a chatbot. 
-               - Good: "I see you're looking for a mysterious vibe. I'm darkening the interface and setting a stormy background to match."
-               - Good: "Switching to a professional look with a clean, minimal layout and a corporate aesthetic."
-            6. **Language**: The text field in the response MUST be in the SAME language as the user's input message.
+            3. **Agent Response (text)**: Write a short, meta-commentary response describing *how* the site is changing (e.g., the new atmosphere). Do NOT answer as a chatbot.
+            4. **CRITICAL**: Do NOT include a "theme" field in the JSON response. The theme will be derived automatically from the video.
+            5. **Language**: The text field in the response MUST be in the SAME language as the user's input message.
 
             Return ONLY a JSON object with this structure:
             {
                 "text": "Your agent response here",
                 "mood": "string",
-                "keywords": "string",
-                "theme": {
-                    "primaryColor": "hex string (vibrant but legible)",
-                    "secondaryColor": "hex string",
-                    "accentColor": "hex string",
-                    "fontFamily": "string",
-                    "backgroundColor": "hex string (dark or light, must contrast with textColor)",
-                    "textColor": "hex string (MUST contrast with backgroundColor)"
-                }
+                "keywords": "string"
             }
         `;
 

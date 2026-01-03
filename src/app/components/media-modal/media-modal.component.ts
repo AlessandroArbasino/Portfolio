@@ -29,22 +29,34 @@ import { MediaItem } from '../../models/api.models';
 
         <!-- Media content -->
         <div 
-          class="relative max-w-7xl max-h-[90vh] w-full"
+          class="relative max-w-7xl max-h-[90vh] w-full min-h-[200px] flex items-center justify-center"
           (click)="$event.stopPropagation()"
           [@scaleAnimation]
         >
+          <!-- Loading Overlay -->
+          @if (isLoading) {
+            <div class="media-loader-container">
+              <div class="media-loader"></div>
+            </div>
+          }
+
           @if (currentMedia.type === 'image') {
             <img 
-              [src]="currentMedia.url" 
-              class="w-full h-full object-contain rounded-lg"
+              [src]="mediaService.getOptimizedUrl(currentMedia.url, 'image')" 
+              class="w-full h-full object-contain rounded-lg media-hidden"
+              [class.media-visible]="!isLoading"
               alt="Full size media"
+              (load)="onMediaLoaded()"
             />
           } @else if (currentMedia.type === 'video') {
             <video 
-              [src]="currentMedia.url"
-              class="w-full h-full object-contain rounded-lg"
+              [src]="mediaService.getOptimizedUrl(currentMedia.url, 'video')"
+              class="w-full h-full object-contain rounded-lg media-hidden"
+              [class.media-visible]="!isLoading"
               controls
               autoplay
+              (loadedmetadata)="handleVideoLoad($event)"
+              (canplaythrough)="onMediaLoaded()"
             ></video>
           }
         </div>
@@ -80,9 +92,10 @@ import { MediaItem } from '../../models/api.models';
 export class MediaModalComponent implements OnInit, OnDestroy {
   isOpen = false;
   currentMedia: MediaItem | null = null;
+  isLoading = true;
   private destroy$ = new Subject<void>();
 
-  constructor(private mediaService: MediaService) { }
+  constructor(public mediaService: MediaService) { }
 
   ngOnInit(): void {
     this.mediaService.isOpen$
@@ -98,7 +111,10 @@ export class MediaModalComponent implements OnInit, OnDestroy {
 
     this.mediaService.currentMedia$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(media => this.currentMedia = media);
+      .subscribe(media => {
+        this.currentMedia = media;
+        this.isLoading = true; // Reset loading state when media changes
+      });
   }
 
   ngOnDestroy(): void {
@@ -109,5 +125,16 @@ export class MediaModalComponent implements OnInit, OnDestroy {
 
   close(): void {
     this.mediaService.closeMedia();
+  }
+
+  handleVideoLoad(event: any): void {
+    const video = event.target as HTMLVideoElement;
+    if (this.currentMedia?.startTime) {
+      video.currentTime = this.currentMedia.startTime;
+    }
+  }
+
+  onMediaLoaded(): void {
+    this.isLoading = false;
   }
 }

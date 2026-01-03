@@ -58,6 +58,11 @@ export class ThemeService {
             root.style.setProperty('--foreground', newTheme.textColor);
         }
 
+        if (newTheme.assistantColor) {
+            root.style.setProperty('--assistant-color', newTheme.assistantColor);
+            root.style.setProperty('--assistant-foreground', this.getContrastColor(newTheme.assistantColor));
+        }
+
         this.themeSubject.next(updated);
     }
 
@@ -76,6 +81,8 @@ export class ThemeService {
         document.body.style.removeProperty('font-family');
         document.body.style.removeProperty('background-color');
         document.body.style.removeProperty('color');
+        root.style.removeProperty('--assistant-color');
+        root.style.removeProperty('--assistant-foreground');
     }
 
     /**

@@ -14,6 +14,8 @@ import { ApiService } from './services/api.service';
 import { ThemeService } from './services/theme.service';
 import { ColorExtractorService } from './services/color-extractor.service';
 import { ChatMessage } from './models/api.models';
+import { timeout, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -78,8 +80,15 @@ export class AppComponent implements OnInit {
 
     private async initializeApp(): Promise<void> {
         try {
-            // Fetch chat history and theme
-            const data = await this.apiService.fetchChatHistory().toPromise();
+            // Fetch chat history and theme with a 7-second timeout
+            const data: any = await this.apiService.fetchChatHistory()
+                .pipe(
+                    timeout(7000),
+                    catchError(err => {
+                        console.error('Chat history fetch failed or timed out:', err);
+                        return of(null);
+                    })
+                ).toPromise();
 
             if (data) {
                 // Restore chat messages
@@ -103,23 +112,10 @@ export class AppComponent implements OnInit {
 
                 // Restore background
                 if (data.backgroundUrl) {
-                    await this.handleBackgroundChange({
+                    this.handleBackgroundChange({
                         url: data.backgroundUrl,
                         thumbnailUrl: data.thumbnailUrl
                     });
-                } else {
-                    // Fallback: get default background
-                    try {
-                        const images = await this.apiService.getBackgroundImages(
-                            'abstract dark gradient',
-                            'motion-backgrounds'
-                        ).toPromise();
-                        if (images && images.length > 0) {
-                            await this.handleBackgroundChange({ url: images[0] });
-                        }
-                    } catch (err) {
-                        console.error('Failed to load default background:', err);
-                    }
                 }
             }
         } catch (error) {
@@ -135,28 +131,33 @@ export class AppComponent implements OnInit {
     async handleBackgroundChange(event: { url: string | null, thumbnailUrl?: string | null }): Promise<void> {
         const { url, thumbnailUrl } = event;
 
+        // Update background URL immediately
+        this.forcedBackground = url;
+
         if (url || thumbnailUrl) {
-            // Extract palette from thumbnail or main URL
+            // Extract palette asynchronously from thumbnail or main URL
             const extractUrl = thumbnailUrl || url;
             if (extractUrl) {
-                const palette = await this.colorExtractor.extractPalette(extractUrl);
-                if (palette) {
-                    const newTheme = {
-                        primaryColor: palette.primary,
-                        secondaryColor: palette.secondary,
-                        accentColor: palette.accent
-                    };
-                    this.themeService.updateTheme(newTheme);
+                try {
+                    const palette = await this.colorExtractor.extractPalette(extractUrl);
+                    if (palette) {
+                        const newTheme = {
+                            primaryColor: palette.primary,
+                            secondaryColor: palette.secondary,
+                            accentColor: palette.accent,
+                            assistantColor: palette.primary // AI chat color matches the video
+                        };
+                        this.themeService.updateTheme(newTheme);
 
-                    // Persist theme
-                    this.apiService.saveTheme(newTheme).subscribe({
-                        error: (e) => console.error('Failed to persist theme:', e)
-                    });
+                        // Persist theme
+                        this.apiService.saveTheme(newTheme).subscribe({
+                            error: (e) => console.error('Failed to persist theme:', e)
+                        });
+                    }
+                } catch (error) {
+                    console.error('Color extraction error:', error);
                 }
             }
         }
-
-        // Update background URL
-        this.forcedBackground = url;
     }
 }

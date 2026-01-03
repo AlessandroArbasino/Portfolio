@@ -1,5 +1,4 @@
 import FixedText from '../models/FixedText.js';
-import BackgroundImage from '../models/BackgroundImage.js';
 import { searchVideos } from '../utils/pexels.js';
 
 const chatTextsIT = {}; // Deprecated in favor of DB
@@ -116,14 +115,3 @@ export const getBackgroundImages = async (req, res) => {
     }
 };
 
-// @desc    Add background image
-// @route   POST /api/background-images
-export const addBackgroundImage = async (req, res) => {
-    try {
-        const { url } = req.body;
-        const image = await BackgroundImage.create({ url });
-        res.status(201).json(image);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};

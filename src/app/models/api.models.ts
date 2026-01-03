@@ -68,6 +68,9 @@ export interface FixedTexts {
         subtitle: string;
         webTitle: string;
         videogameTitle: string;
+        challengesTitle: string;
+        solutionLabel: string;
+        subProjectsLabel: string;
     };
     documents: {
         title: string;

@@ -14,8 +14,9 @@ import { ApiService } from './services/api.service';
 import { ThemeService } from './services/theme.service';
 import { ColorExtractorService } from './services/color-extractor.service';
 import { ChatMessage } from './models/api.models';
-import { timeout, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { timeout, catchError, filter, take } from 'rxjs/operators';
+import { of, firstValueFrom } from 'rxjs';
+import { LanguageService } from './services/language.service';
 
 @Component({
     selector: 'app-root',
@@ -71,7 +72,8 @@ export class AppComponent implements OnInit {
     constructor(
         private apiService: ApiService,
         private themeService: ThemeService,
-        private colorExtractor: ColorExtractorService
+        private colorExtractor: ColorExtractorService,
+        private languageService: LanguageService
     ) { }
 
     ngOnInit(): void {
@@ -80,8 +82,16 @@ export class AppComponent implements OnInit {
 
     private async initializeApp(): Promise<void> {
         try {
+            // Wait for language to be initialized
+            const lang = await firstValueFrom(
+                this.languageService.currentLanguage$.pipe(
+                    filter((l: string) => !!l),
+                    take(1)
+                )
+            );
+
             // Fetch chat history and theme with a 7-second timeout
-            const data: any = await this.apiService.fetchChatHistory()
+            const data: any = await this.apiService.fetchChatHistory(lang)
                 .pipe(
                     timeout(7000),
                     catchError(err => {

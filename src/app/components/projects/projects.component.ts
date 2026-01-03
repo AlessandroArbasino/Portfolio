@@ -32,6 +32,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
                 <app-project-item 
                   #projectElement
                   [project]="project"
+                  [fixedTexts]="fixedTexts"
                   [isExpanded]="expandedProject === project.id"
                   (toggle)="toggleProject(project.id)"
                   (mediaClick)="openMedia($event)"
@@ -50,6 +51,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
                   <app-project-item 
                     #projectElement
                     [project]="project"
+                    [fixedTexts]="fixedTexts"
                     [isExpanded]="expandedProject === project.id"
                     (toggle)="toggleProject(project.id)"
                     (mediaClick)="openMedia($event)"

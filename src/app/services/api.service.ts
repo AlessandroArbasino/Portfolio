@@ -19,7 +19,7 @@ import {
 export class ApiService {
     constructor(private http: HttpClient) { }
 
-    getProjects(lang: string = 'it', type?: string): Observable<Project[]> {
+    getProjects(lang: string = 'en', type?: string): Observable<Project[]> {
         let params = new HttpParams().set('lang', lang);
         if (type) {
             params = params.set('type', type);
@@ -27,11 +27,11 @@ export class ApiService {
         return this.http.get<Project[]>(`/api/projects`, { params });
     }
 
-    getFixedTexts(lang: string = 'it'): Observable<FixedTexts> {
+    getFixedTexts(lang: string = 'en'): Observable<FixedTexts> {
         return this.http.get<FixedTexts>(`/api/fixed-texts?lang=${lang}`);
     }
 
-    getDocuments(lang: string = 'it'): Observable<Document[]> {
+    getDocuments(lang: string = 'en'): Observable<Document[]> {
         return this.http.get<Document[]>(`/api/documents?lang=${lang}`);
     }
 
@@ -43,7 +43,7 @@ export class ApiService {
         return this.http.get<LanguageDto[]>('/api/languages');
     }
 
-    fetchProfile(lang: string = 'it'): Observable<PersonalProfile> {
+    fetchProfile(lang: string = 'en'): Observable<PersonalProfile> {
         return this.http.get<PersonalProfile>(`/api/profile?lang=${lang}`);
     }
 
@@ -51,8 +51,9 @@ export class ApiService {
         return this.http.post<ChatResponse>('/api/chat', { message });
     }
 
-    fetchChatHistory(): Observable<ChatHistory> {
-        return this.http.get<ChatHistory>('/api/chat');
+    fetchChatHistory(lang?: string): Observable<ChatHistory> {
+        const url = lang ? `/api/chat?lang=${lang}` : '/api/chat';
+        return this.http.get<ChatHistory>(url);
     }
 
     saveTheme(theme: Partial<Theme>): Observable<{ message: string }> {

@@ -113,7 +113,7 @@ import { LanguageService } from '../../services/language.service';
 })
 export class LoadingComponent implements OnInit, OnDestroy {
   @Input() isLoading: boolean = true;
-  currentLang: string = 'it';
+  currentLang: string = 'en';
   private destroy$ = new Subject<void>();
 
   constructor(private languageService: LanguageService) { }

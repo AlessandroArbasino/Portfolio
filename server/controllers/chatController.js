@@ -3,41 +3,8 @@ import FixedText from '../models/FixedText.js';
 import { getGeminiResponse } from '../services/geminiService.js';
 import { searchVideos } from '../utils/pexels.js';
 import axios from 'axios';
+import ChatMood from '../models/ChatMood.js';
 
-const INITIAL_MOODS = [
-    {
-        name: 'tech',
-        keywords: 'digital nexus cyberpunk data high-tech grid',
-        welcomeMessages: {
-            it: "Ciao! Ho impostato un'atmosfera tecnologica e futuristica per la tua visita. Come posso aiutarti?",
-            en: "Hi! I've set a technological and futuristic atmosphere for your visit. How can I help you?"
-        }
-    },
-    {
-        name: 'minimal',
-        keywords: 'minimal abstract architecture clean white bright',
-        welcomeMessages: {
-            it: "Benvenuto. Ho scelto un look pulito e minimale per oggi. Cosa desideri sapere?",
-            en: "Welcome. I've chosen a clean and minimal look for today. What would you like to know?"
-        }
-    },
-    {
-        name: 'deep_sea',
-        keywords: 'abstract dark blue water ocean wave',
-        welcomeMessages: {
-            it: "Ciao! Mi sento ispirato dalle profondità dell'oceano. Ho adattato il sito di conseguenza. Dimmi pure!",
-            en: "Hi! I'm feeling inspired by the deep ocean today. I've adjusted the site accordingly. Let me know what you need!"
-        }
-    },
-    {
-        name: 'vibrant',
-        keywords: 'abstract colorful liquid gradient neon',
-        welcomeMessages: {
-            it: "Ehi! Ho caricato il sito con un'esplosione di colori ed energia. Come posso esserti utile?",
-            en: "Hey! I've charged the site with an explosion of colors and energy. How can I be of service?"
-        }
-    }
-];
 
 const processPexelsVideo = (videos) => {
     if (!videos || videos.length === 0) return { backgroundUrl: null, thumbnailUrl: null };
@@ -131,7 +98,15 @@ export const getChatHistory = async (req, res) => {
         let session = await ChatSession.findOne({ sessionId });
 
         // Pick a random mood as default if needed
-        const randomMood = INITIAL_MOODS[Math.floor(Math.random() * INITIAL_MOODS.length)];
+        let randomMood = { keywords: 'abstract technology' }; // Safe fallback
+        try {
+            const moods = await ChatMood.find();
+            if (moods && moods.length > 0) {
+                randomMood = moods[Math.floor(Math.random() * moods.length)];
+            }
+        } catch (moodErr) {
+            console.error('Error fetching chat moods:', moodErr);
+        }
 
         if (!session) {
             // New session initialization - Synchronously fetch initial background
@@ -147,9 +122,21 @@ export const getChatHistory = async (req, res) => {
                 console.error('Initial background search error:', e);
             }
 
+            // Fetch welcome message from FixedText
+            let welcomeMessage = "Hello! How can I help you today?"; // Fallback
+            try {
+                const lang = req.query.lang || 'en';
+                const chatText = await FixedText.findOne({ section: 'chat', language: lang });
+                if (chatText && chatText.content) {
+                    welcomeMessage = chatText.content.get('welcome') || welcomeMessage;
+                }
+            } catch (err) {
+                console.error('Error fetching welcome message from FixedText:', err);
+            }
+
             session = await ChatSession.create({
                 sessionId,
-                messages: [{ role: 'assistant', content: randomMood.welcomeMessages.it }],
+                messages: [{ role: 'assistant', content: welcomeMessage }],
                 backgroundUrl,
                 thumbnailUrl
             });

@@ -7,7 +7,7 @@ import { ApiService } from './api.service';
     providedIn: 'root'
 })
 export class LanguageService {
-    private currentLanguageSubject = new BehaviorSubject<string>('it');
+    private currentLanguageSubject = new BehaviorSubject<string>('');
     private fixedTextsSubject = new BehaviorSubject<FixedTexts | null>(null);
     private loadingSubject = new BehaviorSubject<boolean>(true);
 
@@ -16,8 +16,23 @@ export class LanguageService {
     public loading$ = this.loadingSubject.asObservable();
 
     constructor(private apiService: ApiService) {
-        // Load initial texts
-        this.loadTexts('it');
+        this.initLanguage();
+    }
+
+    /**
+     * Initialize language by fetching available languages from DB
+     */
+    private initLanguage(): void {
+        this.apiService.getLanguages().subscribe({
+            next: (langs) => {
+                const defaultLang = langs && langs.length > 0 ? langs[0].id : 'en';
+                this.setLanguage(defaultLang);
+            },
+            error: (err) => {
+                console.error('Failed to fetch initial languages:', err);
+                this.setLanguage('en'); // Final fallback
+            }
+        });
     }
 
     /**
@@ -46,6 +61,7 @@ export class LanguageService {
      * Load fixed texts for given language
      */
     private loadTexts(lang: string): void {
+        if (!lang) return;
         this.loadingSubject.next(true);
         this.apiService.getFixedTexts(lang).subscribe({
             next: (texts) => {

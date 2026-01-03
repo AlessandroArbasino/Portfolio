@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { trigger, style, transition, animate } from '@angular/animations';
-import { Project, SubProject } from '../../../models/api.models';
+import { Project, SubProject, FixedTexts } from '../../../models/api.models';
 import { MediaRendererComponent } from '../../media-renderer/media-renderer.component';
 
 @Component({
@@ -71,9 +71,9 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
               </div>
 
               <!-- Challenges -->
-              @if (project.challenges && project.challenges.length > 0) {
+              @if (project.challenges && project.challenges.length > 0 && fixedTexts) {
                 <div class="mb-6 space-y-2">
-                  <h4 class="text-white/80 font-medium mb-3">Sfide e Soluzioni</h4>
+                  <h4 class="text-white/80 font-medium mb-3">{{ fixedTexts.projects.challengesTitle }}</h4>
                   @for (challenge of project.challenges; track $index) {
                     <div class="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
                       <details class="group">
@@ -86,7 +86,7 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                           </span>
                         </summary>
                         <div class="px-4 py-3 border-t border-white/10 bg-white/5 text-white/70 text-sm">
-                          <p><span class="text-green-400 font-medium">Soluzione:</span> {{ challenge.solution }}</p>
+                          <p><span class="text-green-400 font-medium">{{ fixedTexts.projects.solutionLabel }}</span> {{ challenge.solution }}</p>
                         </div>
                       </details>
                     </div>
@@ -127,9 +127,9 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
               </div>
 
               <!-- SubProjects -->
-              @if (project.subProjects && project.subProjects.length > 0) {
+              @if (project.subProjects && project.subProjects.length > 0 && fixedTexts) {
                 <div class="mt-4 space-y-2">
-                  <p class="text-white/60 text-sm mb-2">Sotto-progetti:</p>
+                  <p class="text-white/60 text-sm mb-2">{{ fixedTexts.projects.subProjectsLabel }}</p>
                   @for (subProject of project.subProjects; track subProject.id) {
                     <div 
                       class="bg-white/5 rounded-lg border border-white/10 overflow-hidden"
@@ -183,9 +183,9 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                               {{ subProject.description }}
                             </p>
                             
-                            @if (subProject.challenges && subProject.challenges.length > 0) {
+                            @if (subProject.challenges && subProject.challenges.length > 0 && fixedTexts) {
                                   <div class="mb-4 space-y-2">
-                                    <p class="text-white/60 text-xs font-medium">Sfide:</p>
+                                    <p class="text-white/60 text-xs font-medium">{{ fixedTexts.projects.challengesTitle }}:</p>
                                     @for (challenge of subProject.challenges; track $index) {
                                       <div class="bg-white/5 rounded border border-white/5 overflow-hidden">
                                         <details class="group">
@@ -198,7 +198,7 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                                               </span>
                                           </summary>
                                           <div class="px-3 py-2 border-t border-white/5 bg-black/20 text-white/60 text-xs">
-                                            <span class="text-green-400/80">Soluzione: </span> {{ challenge.solution }}
+                                            <span class="text-green-400/80">{{ fixedTexts.projects.solutionLabel }} </span> {{ challenge.solution }}
                                           </div>
                                         </details>
                                       </div>
@@ -247,6 +247,7 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
 })
 export class ProjectItemComponent {
   @Input() project!: Project;
+  @Input() fixedTexts: FixedTexts | null = null;
   @Input() isExpanded = false;
   @Output() toggle = new EventEmitter<void>();
   @Output() mediaClick = new EventEmitter<{ url: string, type: 'image' | 'video' }>();

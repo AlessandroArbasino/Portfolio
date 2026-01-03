@@ -291,7 +291,7 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
               // Default welcome message if no history
               this.chatHistory = [{
                 role: 'assistant',
-                content: 'Ciao! Sono il tuo assistente AI. Posso aiutarti a personalizzare l\'aspetto del portfolio. Prova a chiedermi di cambiare i colori, il tema o lo stile!'
+                content: 'Hi! I am your AI assistant. I can help you customize the look of the portfolio. Try asking me to change the colors, theme, or style!'
               }];
             }
           },
@@ -371,7 +371,7 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
           console.error('Chat Error:', error);
           this.chatHistory.push({
             role: 'assistant',
-            content: 'Scusa, ho avuto un problema nel processare la tua richiesta.'
+            content: 'Sorry, I had a problem processing your request.'
           });
           this.isLoading = false;
         }

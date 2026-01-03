@@ -15,10 +15,10 @@ import contactRoutes from './routes/contactRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
-import BackgroundImage from './models/BackgroundImage.js';
 import PersonalProfile from './models/PersonalProfile.js';
 import Language from './models/Language.js';
 import Document from './models/Document.js';
+import ChatMood from './models/ChatMood.js';
 
 dotenv.config();
 
@@ -288,93 +288,89 @@ const seedData = async () => {
         }
 
         const seedSection = async (section, content) => {
-            const exists = await FixedText.findOne({ section, language: 'it' });
+            const exists = await FixedText.findOne({ section, language: 'en' });
             if (!exists) {
-                await FixedText.create({ section, language: 'it', content });
-                console.log(`Seeded ${section}`);
+                await FixedText.create({ section, language: 'en', content });
+                console.log(`Seeded ${section} (en)`);
             }
         };
 
         await seedSection('hero', {
-            title: "Mario Rossi",
-            subtitle: "Junior Full Stack Developer",
-            description: "Creo esperienze web moderne e performanti. Appassionato di tecnologia e sempre pronto ad imparare."
+            title: "Alessandro Arbasino",
+            subtitle: "Full Stack Developer",
+            description: "I create modern and high-performance web experiences. Passionate about technology and always ready to learn."
         });
 
         await seedSection('about', {
-            years: "Anni",
-            experience: "di Esperienza",
-            projects: "Progetti",
-            completed: "Completati",
-            training: "Formazione",
-            continuous: "Continua",
-            skills: "Le Mie Skills"
+            title: "About Me",
+            years: "Years",
+            experience: "of Experience",
+            projects: "Projects",
+            completed: "Completed",
+            training: "Training",
+            continuous: "Continuous",
+            skills: "My Skills"
         });
 
         await seedSection('chat', {
-            tooltipTitle: 'Assistente AI',
-            tooltipDesc: 'Posso personalizzare il sito per te!',
-            chatTitle: 'Assistente AI',
-            welcome: 'Ciao! Chiedimi di modificare la moodboard del sito.',
-            initialMessage: 'Ciao! Come posso aiutarti oggi?',
-            placeholder: 'Scrivi un messaggio...',
-            send: 'Invia',
-            subtitle: 'Chiedimi di modificare la moodboard del sito'
+            tooltipTitle: 'AI Assistant',
+            tooltipDesc: 'I can personalize the site for you!',
+            chatTitle: 'AI Assistant',
+            welcome: 'Hi! Ask me to modify the site\'s moodboard.',
+            initialMessage: 'Hello! How can I help you today?',
+            placeholder: 'Write a message...',
+            send: 'Send',
+            subtitle: 'Ask me to modify the site\'s moodboard'
         });
 
         await seedSection('contact', {
-            title: 'Contatti',
-            subtitle: 'Interessato a collaborare? Contattiamoci!',
-            copyright: '© 2024 Alessandro Arbasino. Tutti i diritti riservati.'
+            title: 'Contact',
+            subtitle: 'Interested in collaborating? Let\'s connect!',
+            copyright: '© 2025 Alessandro Arbasino. All rights reserved.'
         });
 
         await seedSection('projects', {
-            title: 'Progetti',
-            subtitle: 'Alcuni dei progetti su cui ho lavorato',
+            title: 'Projects',
+            subtitle: 'Some of the projects I have worked on',
             webTitle: 'Web Projects',
-            videogameTitle: 'Videogame Projects'
+            videogameTitle: 'Videogames',
+            challengesTitle: 'Challenges and Solutions',
+            solutionLabel: 'Solution:',
+            subProjectsLabel: 'Sub-projects:'
         });
 
         await seedSection('documents', {
-            title: 'Documenti',
-            subtitle: 'Scarica o visualizza i miei documenti'
+            title: 'Documents',
+            subtitle: 'Download or view my documents'
         });
 
-        const imgCount = await BackgroundImage.countDocuments();
-        if (imgCount === 0) {
-            await BackgroundImage.insertMany([
-                { url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&q=80" },
-                { url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80" },
-                { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80" }
-            ]);
-        }
 
         const langCount = await Language.countDocuments();
         if (langCount === 0) {
             await Language.insertMany([
-                { id: 'it', text: 'IT-it' },
                 { id: 'en', text: 'EN-en' },
+                { id: 'it', text: 'IT-it' },
                 { id: 'es', text: 'ES-es' },
                 { id: 'fr', text: 'FR-fr' }
             ]);
         }
 
-        const profileCount = await PersonalProfile.countDocuments();
+        const profileCount = await PersonalProfile.countDocuments({ language: 'en' });
         if (profileCount === 0) {
             await PersonalProfile.create({
-                language: 'it',
+                language: 'en',
                 name: 'Alessandro Arbasino',
                 title: 'Full Stack Developer',
-                description: 'Da sempre appassionato di tecnologia, ho trasformato la mia curiosità in una professione. Mi piace risolvere problemi complessi e creare soluzioni digitali che abbiano un impatto reale.',
-                greeting: 'Ciao, sono Alessandro!',
-                imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+                description: 'A passionate and proactive Full-Stack Developer with a solid foundation in enterprise architectures, coupled with a strong dedication to modern stacks like React, Node.js, and TypeScript. I am focused on transforming ideas into clean code and scalable solutions.',
+                greeting: 'Hello, I\'m Alessandro!',
+                imageUrl: 'https://res.cloudinary.com/dwpapdlgk/image/upload/v1765960795/AlessandroArbasino_etyt9y.jpg',
                 socialLinks: {
                     github: 'https://github.com/mario-rossi',
                     linkedin: 'https://linkedin.com/in/mario-rossi'
                 },
                 cvUrl: '/assets/cv.pdf',
-                experienceYears: 3,
-                completedProjects: 12,
+                experienceYears: 1,
+                completedProjects: 6,
                 skills: [
                     { name: 'React', level: 90 },
                     { name: 'Node.js', level: 85 },
@@ -385,25 +381,48 @@ const seedData = async () => {
             });
         }
 
-        const docCount = await Document.countDocuments();
+        const docCount = await Document.countDocuments({ language: 'en' });
         if (docCount === 0) {
             await Document.insertMany([
                 {
                     title: 'Curriculum Vitae',
-                    description: 'Il mio CV aggiornato al 2024',
+                    description: 'My CV updated for 2025',
                     fileUrl: 'https://example.com/cv.pdf',
                     type: 'PDF',
-                    language: 'it'
+                    language: 'en'
                 },
                 {
                     title: 'Portfolio Presentation',
-                    description: 'Presentazione estesa dei progetti',
+                    description: 'Extended presentation of my projects',
                     fileUrl: 'https://example.com/portfolio.pdf',
                     type: 'PDF',
-                    language: 'it'
+                    language: 'en'
                 }
             ]);
-            console.log('Seeded documents');
+            console.log('Seeded documents (en)');
+        }
+
+        const moodCount = await ChatMood.countDocuments();
+        if (moodCount === 0) {
+            await ChatMood.insertMany([
+                {
+                    name: 'tech',
+                    keywords: 'digital nexus cyberpunk data high-tech grid'
+                },
+                {
+                    name: 'minimal',
+                    keywords: 'minimal abstract architecture clean white bright'
+                },
+                {
+                    name: 'deep_sea',
+                    keywords: 'abstract dark blue water ocean wave'
+                },
+                {
+                    name: 'vibrant',
+                    keywords: 'abstract colorful liquid gradient neon'
+                }
+            ]);
+            console.log('Seeded initial chat moods');
         }
     } catch (err) {
         console.error("Seeding error:", err);

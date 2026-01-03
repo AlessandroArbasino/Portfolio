@@ -10,7 +10,7 @@ import { PersonalProfile, FixedTexts } from '../../models/api.models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section id="about" class="flex flex-col justify-center px-4 py-8">
+    <section id="about"  class="flex flex-col justify-center px-4 py-8">
       <div class="max-w-6xl mx-auto w-full">
         @if (fixedTexts) {
           <!-- Title with fade-in animation equivalent -->

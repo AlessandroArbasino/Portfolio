@@ -69,7 +69,7 @@ app.use('/api/documents', documentRoutes);
 
 // Serve Angular static files in production
 if (process.env.NODE_ENV === 'production') {
-    const distPath = path.join(__dirname, '../dist/browser');
+    const distPath = path.join(__dirname, '../dist');
     app.use(express.static(distPath));
 
     // All other routes should serve index.html (for Angular routing)

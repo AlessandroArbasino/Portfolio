@@ -30,7 +30,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Connect to Database
-connectDB();
+await connectDB();
 
 // CORS config for Angular dev server (4200) or production
 app.use(cors({
@@ -67,8 +67,8 @@ app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/documents', documentRoutes);
 
-// Serve Angular static files in production
-if (process.env.NODE_ENV === 'production') {
+// Serve Angular static files in production (ONLY if not on Vercel)
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
     const distPath = path.join(__dirname, '../dist');
     app.use(express.static(distPath));
 

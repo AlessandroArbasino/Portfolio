@@ -44,6 +44,7 @@ export interface FixedTexts {
         placeholder: string;
         send: string;
         subtitle: string;
+        typing: string;
     };
     about: {
         title: string;

@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import FixedText from '../models/FixedText.js';
 import PersonalProfile from '../models/PersonalProfile.js';
+import Language from '../models/Language.js';
 import { translateContent } from '../services/geminiService.js';
 
 export const translateFixedTexts = async (req, res) => {
@@ -152,7 +153,7 @@ export const translateProfile = async (req, res) => {
             return res.status(400).json({ message: 'Target language (lang) is required' });
         }
 
-        const result = await _translateProfileAndAbout(lang);
+        const result = await _translateProfileHelper(lang);
         res.json(result);
     } catch (error) {
         console.error('Translate Profile Error:', error);
@@ -169,9 +170,12 @@ export const translateAll = async (req, res) => {
             return res.status(400).json({ message: 'Target language (lang) is required' });
         }
 
+        // Ensure language exists in DB (validates via Intl)
+        await _ensureLanguageExists(lang);
+
         // Translate in 3 separate calls
         const fixedTextsResult = await _bulkTranslateFixedTexts(lang);
-        const profileResult = await _translateProfileAndAbout(lang);
+        const profileResult = await _translateProfileHelper(lang);
         const projectsResult = await _bulkTranslateProjects(lang);
 
         // Aggregate results
@@ -191,8 +195,7 @@ export const translateAll = async (req, res) => {
             message: 'Complete translation finished',
             fixedTexts: fixedTextsStats,
             profile: {
-                profile: profileResult.profileResult?.status || 'unknown',
-                aboutSection: profileResult.aboutResult?.status || 'unknown'
+                profile: profileResult.profileResult?.status || 'unknown'
             },
             projects: projectsStats
         });
@@ -364,32 +367,28 @@ async function _bulkTranslateProjects(lang) {
     return { message: 'Bulk translation completed', results };
 }
 
-async function _translateProfileAndAbout(lang) {
+async function _translateProfileHelper(lang) {
     // Check if already exists
     const existingProfile = await PersonalProfile.findOne({ language: lang });
-    const existingAbout = await FixedText.findOne({ section: 'about', language: lang });
 
     const profileResult = existingProfile ? { status: 'skipped' } : null;
-    const aboutResult = existingAbout ? { status: 'skipped' } : null;
 
-    // If both exist, skip
-    if (profileResult && aboutResult) {
+    // If exist, skip
+    if (profileResult) {
         return {
-            message: 'Profile and about section already translated',
-            profileResult,
-            aboutResult
+            message: 'Profile already translated',
+            profileResult
         };
     }
 
     // Fetch source data
     const sourceProfile = await PersonalProfile.findOne({ language: 'en' });
-    const sourceAbout = await FixedText.findOne({ section: 'about', language: 'en' });
 
     if (!sourceProfile) {
         throw new Error('English version of PersonalProfile not found');
     }
 
-    // Prepare data for single Gemini call
+    // Prepare data for Gemini call
     const dataToTranslate = {
         profile: {
             title: sourceProfile.title,
@@ -398,15 +397,10 @@ async function _translateProfileAndAbout(lang) {
         }
     };
 
-    if (sourceAbout) {
-        const aboutContent = sourceAbout.content instanceof Map ? Object.fromEntries(sourceAbout.content) : sourceAbout.content;
-        dataToTranslate.aboutSection = aboutContent;
-    }
-
-    // Single Gemini call for both
+    // Single Gemini call
     const translated = await translateContent({
         ...dataToTranslate,
-        _instruction: `Translate both the profile fields (title, description, greeting) and the aboutSection labels. Return a JSON object with 'profile' and 'aboutSection' keys containing the translated content.`
+        _instruction: `Translate the profile fields (title, description, greeting). Return a JSON object with a 'profile' key containing the translated content.`
     }, lang);
 
     // Save translated profile if not exists
@@ -424,22 +418,43 @@ async function _translateProfileAndAbout(lang) {
             description: translated.profile.description || profileData.description,
             greeting: translated.profile.greeting || profileData.greeting
         });
-        profileResult.status = 'success';
-    }
-
-    // Save translated about section if not exists
-    if (!existingAbout && translated.aboutSection && sourceAbout) {
-        await FixedText.create({
-            section: 'about',
-            language: lang,
-            content: translated.aboutSection
-        });
-        aboutResult.status = 'success';
+        // profileResult.status = 'success';
     }
 
     return {
-        message: 'Profile and about section translation completed',
-        profileResult: profileResult || { status: 'success' },
-        aboutResult: aboutResult || { status: 'success' }
+        message: 'Profile translation completed',
+        profileResult: profileResult || { status: 'success' }
     };
+}
+
+async function _ensureLanguageExists(lang) {
+    const langId = lang.toLowerCase();
+
+    // Check if exists
+    const existing = await Language.findOne({ id: langId });
+    if (existing) {
+        return;
+    }
+
+    // Validate using Intl
+    try {
+        const displayNames = new Intl.DisplayNames(['en'], { type: 'language' });
+        const name = displayNames.of(langId);
+
+        // If Intl returns the code itself, it usually means it's unknown/invalid
+        if (!name || name.toLowerCase() === langId) {
+            throw new Error(`Invalid or unknown language code: ${lang}`);
+        }
+
+        // Create new language
+        // User request: "tutto uppercase" for the DB display text
+        await Language.create({
+            id: langId,
+            text: langId.toUpperCase()
+        });
+        console.log(`Auto-added new language: ${langId} (${langId.toUpperCase()})`);
+
+    } catch (error) {
+        throw new Error(`Language validation failed: ${error.message}`);
+    }
 }

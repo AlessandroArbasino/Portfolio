@@ -130,7 +130,7 @@ import { ChatMessage, FixedTexts } from '../../models/api.models';
             }
             @if (isLoading) {
               <div class="text-xs italic opacity-60 text-white">
-                Sta scrivendo...
+                {{ translations.typing }}
               </div>
             }
           </div>
@@ -264,7 +264,8 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
             subtitle: 'Ask me to change the site moodboard',
             placeholder: 'Type a message...',
             send: 'Send',
-            welcome: 'Hi! Ask me to change the site moodboard.'
+            welcome: 'Hi! Ask me to change the site moodboard.',
+            typing: 'Typing...'
           };
         }
       });

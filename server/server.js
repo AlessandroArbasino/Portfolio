@@ -320,7 +320,8 @@ const seedData = async () => {
             initialMessage: 'Hello! How can I help you today?',
             placeholder: 'Write a message...',
             send: 'Send',
-            subtitle: 'Ask me to modify the site\'s moodboard'
+            subtitle: 'Ask me to modify the site\'s moodboard',
+            typing: 'Typing...'
         });
 
         await seedSection('contact', {

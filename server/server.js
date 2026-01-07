@@ -20,6 +20,7 @@ import PersonalProfile from './models/PersonalProfile.js';
 import Language from './models/Language.js';
 import Document from './models/Document.js';
 import ChatMood from './models/ChatMood.js';
+import { verifyTranslateApiKey } from './middleware/authMiddleware.js';
 
 dotenv.config();
 
@@ -62,7 +63,7 @@ function ensureSessionCookie(req, res, next) {
 app.use('/api/projects', projectRoutes);
 app.use('/api', contentRoutes);
 app.use('/api/chat', ensureSessionCookie, chatRoutes);
-app.use('/api/translate', translateRoutes);
+app.use('/api/translate', verifyTranslateApiKey, translateRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);

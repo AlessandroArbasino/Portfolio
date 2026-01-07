@@ -13,6 +13,7 @@ import profileRoutes from './routes/profileRoutes.js';
 import languageRoutes from './routes/languageRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
+import cronRoutes from './routes/cronRoutes.js';
 import Project from './models/Project.js';
 import FixedText from './models/FixedText.js';
 import PersonalProfile from './models/PersonalProfile.js';
@@ -66,6 +67,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/cron', cronRoutes);
 
 // Serve Angular static files in production (ONLY if not on Vercel)
 if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {

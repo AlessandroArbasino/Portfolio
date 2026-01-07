@@ -4,6 +4,7 @@ import { getGeminiResponse } from '../services/geminiService.js';
 import { searchVideos } from '../utils/pexels.js';
 import axios from 'axios';
 import ChatMood from '../models/ChatMood.js';
+import { encrypt, decrypt } from '../utils/crypto.js';
 
 
 const processPexelsVideo = (videos) => {
@@ -29,7 +30,10 @@ export const processChat = async (req, res) => {
 
         // 1. Retrieve current session to get history (for context)
         let session = await ChatSession.findOne({ sessionId });
-        const history = session ? session.messages.slice(-10) : [];
+        const history = session ? session.messages.map(m => ({
+            role: m.role,
+            content: decrypt(m.content)
+        })).slice(-10) : [];
 
         // 2. Get Gemini Response
         const aiResult = await getGeminiResponse(history, message);
@@ -40,8 +44,13 @@ export const processChat = async (req, res) => {
             { role: 'assistant', content: aiResult.text }
         ];
 
+        const encryptedMessages = newMessages.map(m => ({
+            role: m.role,
+            content: encrypt(m.content)
+        }));
+
         let updates = {
-            $push: { messages: { $each: newMessages } },
+            $push: { messages: { $each: encryptedMessages } },
             $set: { lastMessageAt: new Date() }
         };
 
@@ -136,14 +145,17 @@ export const getChatHistory = async (req, res) => {
 
             session = await ChatSession.create({
                 sessionId,
-                messages: [{ role: 'assistant', content: welcomeMessage }],
+                messages: [{ role: 'assistant', content: encrypt(welcomeMessage) }],
                 backgroundUrl,
                 thumbnailUrl
             });
         }
 
         res.json({
-            messages: session.messages,
+            messages: session.messages.map(m => ({
+                ...m.toObject(),
+                content: decrypt(m.content)
+            })),
             backgroundUrl: session.backgroundUrl || null,
             thumbnailUrl: session.thumbnailUrl || null,
             primaryColor: session.primaryColor,

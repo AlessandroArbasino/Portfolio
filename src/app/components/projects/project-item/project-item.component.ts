@@ -96,7 +96,7 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
 
               <!-- Links -->
               <div class="flex gap-3 mb-4">
-                @if (project.github) {
+                @if (project.github && project.github.trim() !== '') {
                   <a
                     [href]="project.github"
                     class="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm"
@@ -109,7 +109,7 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                     <span>GitHub</span>
                   </a>
                 }
-                @if (project.demo) {
+                @if (project.demo && project.demo.trim() !== '') {
                   <a
                     [href]="project.demo"
                     class="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm"

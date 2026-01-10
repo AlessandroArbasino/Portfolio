@@ -90,44 +90,6 @@ export class AppComponent implements OnInit {
                 )
             );
 
-            // Fetch chat history and theme with a 7-second timeout
-            const data: any = await this.apiService.fetchChatHistory(lang)
-                .pipe(
-                    timeout(7000),
-                    catchError(err => {
-                        console.error('Chat history fetch failed or timed out:', err);
-                        return of(null);
-                    })
-                ).toPromise();
-
-            if (data) {
-                // Restore chat messages
-                if (data.messages && data.messages.length > 0) {
-                    this.initialChatHistory = data.messages;
-                }
-
-                // Restore theme
-                const theme: any = {};
-                if (data.primaryColor) theme.primaryColor = data.primaryColor;
-                if (data.secondaryColor) theme.secondaryColor = data.secondaryColor;
-                if (data.accentColor) theme.accentColor = data.accentColor;
-                if (data.fontFamily) theme.fontFamily = data.fontFamily;
-                if (data.backgroundColor) theme.backgroundColor = data.backgroundColor;
-                if (data.textColor) theme.textColor = data.textColor;
-                if (data.assistantColor) theme.assistantColor = data.assistantColor;
-
-                if (Object.keys(theme).length > 0) {
-                    this.themeService.updateTheme(theme);
-                }
-
-                // Restore background
-                if (data.backgroundUrl) {
-                    this.handleBackgroundChange({
-                        url: data.backgroundUrl,
-                        thumbnailUrl: data.thumbnailUrl
-                    });
-                }
-            }
         } catch (error) {
             console.error('Startup initialization error:', error);
         } finally {

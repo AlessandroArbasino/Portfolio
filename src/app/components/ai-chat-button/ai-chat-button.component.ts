@@ -7,6 +7,7 @@ import { ApiService } from '../../services/api.service';
 import { ThemeService } from '../../services/theme.service';
 import { LanguageService } from '../../services/language.service';
 import { ChatMessage, FixedTexts } from '../../models/api.models';
+import { Theme } from '../../models/api.models';
 
 @Component({
   selector: 'app-ai-chat-button',
@@ -275,19 +276,37 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
       this.chatHistory = this.initialHistory;
     } else {
       // Fetch history from API
+      console.log('Fetching chat history... ai-chat-button.component.ts');
       this.apiService.fetchChatHistory()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (history) => {
+            console.log('Chat history fetched successfully... ai-chat-button.component.ts');
             if (history && history.messages && history.messages.length > 0) {
               this.chatHistory = history.messages;
 
-              // Also apply theme/background if present in history
-              if (history.primaryColor) {
-                // We might need to construct a partial theme to update
-                // But typically theme is saved in local storage or fetched via separate theme API
-                // For now, just trusting the global theme service
+              // Restore theme
+              const theme: any = {};
+              if (history.primaryColor) theme.primaryColor = history.primaryColor;
+              if (history.secondaryColor) theme.secondaryColor = history.secondaryColor;
+              if (history.accentColor) theme.accentColor = history.accentColor;
+              if (history.fontFamily) theme.fontFamily = history.fontFamily;
+              if (history.backgroundColor) theme.backgroundColor = history.backgroundColor;
+              if (history.textColor) theme.textColor = history.textColor;
+              if (history.assistantColor) theme.assistantColor = history.assistantColor;
+
+              if (Object.keys(theme).length > 0) {
+                this.themeService.updateTheme(theme);
               }
+
+              // Restore background
+              if (history.backgroundUrl) {
+                this.backgroundChange.emit({
+                  url: history.backgroundUrl,
+                  thumbnailUrl: history.thumbnailUrl
+                });
+              }
+
             } else {
               // Default welcome message if no history
               this.chatHistory = [{
@@ -352,7 +371,7 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
     this.message = '';
     this.chatHistory.push({ role: 'user', content: userMsg });
     this.isLoading = true;
-
+    console.log('Sending message... ai-chat-button.component.ts');
     this.apiService.sendMessage(userMsg)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

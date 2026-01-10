@@ -60,7 +60,10 @@ export const processChat = async (req, res) => {
         if (aiResult.keywords) {
             try {
                 console.log("Gemini Keywords:", aiResult.keywords);
-                const videos = await searchVideos(aiResult.keywords, process.env.PEXELS_VIDEOS_NUMBER);
+                const ua = (req.headers['user-agent'] || '').toLowerCase();
+                const isMobile = /(mobi|android|iphone|ipad|ipod|phone)/i.test(ua);
+                const orientation = isMobile ? 'portrait' : 'landscape';
+                const videos = await searchVideos(aiResult.keywords, process.env.PEXELS_VIDEOS_NUMBER, orientation);
                 const { backgroundUrl: bUrl, thumbnailUrl: tUrl } = processPexelsVideo(videos);
 
                 if (bUrl) {
@@ -123,7 +126,10 @@ export const getChatHistory = async (req, res) => {
             let thumbnailUrl = null;
 
             try {
-                const videos = await searchVideos(randomMood.keywords, 3);
+                const ua = (req.headers['user-agent'] || '').toLowerCase();
+                const isMobile = /(mobi|android|iphone|ipad|ipod|phone)/i.test(ua);
+                const orientation = isMobile ? 'portrait' : 'landscape';
+                const videos = await searchVideos(randomMood.keywords, 3, orientation);
                 const result = processPexelsVideo(videos);
                 backgroundUrl = result.backgroundUrl;
                 thumbnailUrl = result.thumbnailUrl;

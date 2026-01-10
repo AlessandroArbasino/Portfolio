@@ -78,7 +78,11 @@ export const getBackgroundImages = async (req, res) => {
             "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80"
         ];
 
-        const videos = await searchVideos(keywords || 'abstract technology', 10);
+        const ua = (req.headers['user-agent'] || '').toLowerCase();
+        const isMobile = /(mobi|android|iphone|ipad|ipod|phone)/i.test(ua);
+        const orientation = isMobile ? 'portrait' : 'landscape';
+
+        const videos = await searchVideos(keywords || 'abstract technology', 10, orientation);
 
         if (videos && videos.length > 0) {
             // Map to video files (using the highest quality or specific width/height if needed)

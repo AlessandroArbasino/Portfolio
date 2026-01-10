@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
 
-export const searchVideos = async (query, perPage = 1) => {
+export const searchVideos = async (query, perPage = 1, orientation = 'landscape') => {
     if (!PEXELS_API_KEY) {
         console.warn('Pexels API Key not found in environment variables.');
         return [];
@@ -16,7 +16,7 @@ export const searchVideos = async (query, perPage = 1) => {
             params: {
                 query,
                 per_page: perPage,
-                orientation: 'landscape',
+                orientation,
                 size: 'medium'
             }
         });

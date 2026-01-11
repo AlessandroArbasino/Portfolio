@@ -45,6 +45,7 @@ export interface FixedTexts {
         send: string;
         subtitle: string;
         typing: string;
+        creditsExhausted?: string;
     };
     about: {
         title: string;
@@ -166,6 +167,13 @@ export interface ChatHistory {
     textColor?: string;
     fontFamily?: string;
     assistantColor?: string;
+}
+
+export interface ChatStatus {
+    canSend: boolean;
+    remaining?: number;
+    limit?: number;
+    reason?: string;
 }
 
 export interface ExtractedPalette {

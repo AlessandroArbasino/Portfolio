@@ -60,6 +60,13 @@ export const getGeminiResponse = async (history, message) => {
 
     } catch (error) {
         console.error('Gemini Service Error:', error);
+        const errMsg = (error && error.message) ? error.message : String(error);
+        // Surface rate-limit specifically
+        if ((error && (error.status === 429 || error.code === 429)) || /429|rate limit/i.test(errMsg)) {
+            const e = new Error('Rate limit exceeded');
+            e.code = 429;
+            throw e;
+        }
         throw new Error('Failed to get response from AI');
     }
 };

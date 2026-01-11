@@ -10,7 +10,8 @@ import {
     PersonalProfile,
     ChatResponse,
     ChatHistory,
-    Theme
+    Theme,
+    ChatStatus
 } from '../models/api.models';
 
 @Injectable({
@@ -47,13 +48,19 @@ export class ApiService {
         return this.http.get<PersonalProfile>(`/api/profile?lang=${lang}`);
     }
 
-    sendMessage(message: string): Observable<ChatResponse> {
-        return this.http.post<ChatResponse>('/api/chat', { message });
+    sendMessage(message: string, lang?: string): Observable<ChatResponse> {
+        const params = lang ? new HttpParams().set('lang', lang) : undefined;
+        return this.http.post<ChatResponse>('/api/chat', { message }, { params });
     }
 
     fetchChatHistory(lang?: string): Observable<ChatHistory> {
         const url = lang ? `/api/chat?lang=${lang}` : '/api/chat';
         return this.http.get<ChatHistory>(url);
+    }
+
+    getChatStatus(lang?: string): Observable<ChatStatus> {
+        const params = lang ? new HttpParams().set('lang', lang) : undefined;
+        return this.http.get<ChatStatus>('/api/chat/status', { params });
     }
 
     saveTheme(theme: Partial<Theme>): Observable<{ message: string }> {

@@ -5,6 +5,9 @@ import { searchVideos } from '../utils/pexels.js';
 import axios from 'axios';
 import ChatMood from '../models/ChatMood.js';
 import { encrypt, decrypt } from '../utils/crypto.js';
+import ChatStatus from '../models/ChatStatus.js';
+
+const todayKey = () => new Date().toISOString().slice(0, 10);
 
 
 const processPexelsVideo = (videos) => {
@@ -23,9 +26,21 @@ export const processChat = async (req, res) => {
     try {
         const { message } = req.body;
         const sessionId = req.sessionId;
+        const lang = req.query.lang || 'en';
 
         if (!sessionId || !message) {
             return res.status(400).json({ message: 'Session ID and message are required' });
+        }
+
+        // Check if chat is disabled for today (rate limit reached)
+        const existingStatus = await ChatStatus.findOne({ dateKey: todayKey() });
+        if (existingStatus && existingStatus.disabled) {
+            let reason = 'Daily AI message limit reached. Please try again tomorrow.';
+            try {
+                const chatText = await FixedText.findOne({ section: 'chat', language: lang });
+                reason = chatText?.content?.get('creditsExhausted') || reason;
+            } catch {}
+            return res.status(429).json({ message: reason });
         }
 
         // 1. Retrieve current session to get history (for context)
@@ -98,6 +113,28 @@ export const processChat = async (req, res) => {
 
     } catch (error) {
         console.error('Chat Controller Error:', error);
+        if (error && (error.code === 429 || error.status === 429)) {
+            try {
+                await ChatStatus.findOneAndUpdate(
+                    { dateKey: todayKey() },
+                    {
+                        $set: {
+                            disabled: true,
+                            // Do not store localized reason; localization happens at read time
+                        },
+                    },
+                    { upsert: true, new: true }
+                );
+            } catch (e) {
+                console.error('Failed to persist ChatStatus 429:', e);
+            }
+            let reason = 'Daily AI message limit reached. Please try again tomorrow.';
+            try {
+                const chatText = await FixedText.findOne({ section: 'chat', language: lang });
+                reason = chatText?.content?.get('creditsExhausted') || reason;
+            } catch {}
+            return res.status(429).json({ message: reason });
+        }
         res.status(500).json({ message: error.message });
     }
 };

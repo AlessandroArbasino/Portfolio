@@ -148,19 +148,48 @@ import { Theme } from '../../models/api.models';
                 [ngStyle]="inputStyle"
                 [style.--placeholder-color]="buttonTextColor"
               />
-              <button
-                type="submit"
-                class="rounded-lg px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-50"
-                [ngStyle]="buttonStyle"
-                [disabled]="isLoading || !message.trim()"
-                [attr.aria-label]="translations.send"
-              >
-                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="m22 2-7 20-4-9-9-4Z"/>
-                  <path d="M22 2 11 13"/>
-                </svg>
-              </button>
+              <div class="relative group">
+                <button
+                  type="submit"
+                  class="rounded-lg px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  [ngStyle]="buttonStyle"
+                  [disabled]="isLoading || !message.trim() || chatDisabled"
+                  [attr.aria-label]="translations.send"
+                  [attr.aria-disabled]="chatDisabled"
+                  [attr.title]="chatDisabled ? (translations?.creditsExhausted || disabledReason || 'Hai raggiunto il limite giornaliero di richieste AI. Riprova domani.') : null"
+                >
+                  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m22 2-7 20-4-9-9-4Z"/>
+                    <path d="M22 2 11 13"/>
+                  </svg>
+                </button>
+                @if (chatDisabled) {
+                  <div
+                    class="absolute bottom-full right-0 mb-2 max-w-[16rem] w-max text-xs px-4 py-3 rounded-2xl shadow-2xl hidden md:block md:group-hover:block md:focus-within:block"
+                    [ngStyle]="gradientStyle"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div class="bg-white/20 rounded-full p-1.5">
+                        <svg class="w-4 h-4" [style.color]="tooltipTextColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p [style.color]="tooltipTextColor" class="text-xs">
+                          {{ translations?.creditsExhausted || disabledReason || 'Hai raggiunto il limite giornaliero di richieste AI. Riprova domani.' }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="absolute -bottom-2 right-4 w-4 h-4 transform rotate-45" [ngStyle]="gradientStyle"></div>
+                  </div>
+                }
+              </div>
             </div>
+            @if (chatDisabled) {
+              <p class="mt-2 text-xs md:hidden" [style.color]="textColor">
+                {{ translations?.creditsExhausted || disabledReason || 'Hai raggiunto il limite giornaliero di richieste AI. Riprova domani.' }}
+              </p>
+            }
           </form>
         </div>
       </div>
@@ -228,6 +257,8 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
   chatHistory: ChatMessage[] = [];
   isLoading = false;
   translations: any = {};
+  chatDisabled = false;
+  disabledReason: string | undefined;
 
   private destroy$ = new Subject<void>();
 
@@ -268,6 +299,21 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
             welcome: 'Hi! Ask me to change the site moodboard.',
             typing: 'Typing...'
           };
+        }
+      });
+
+    // Check chat status (rate limit)
+    this.apiService.getChatStatus(this.languageService.currentLanguage)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (status) => {
+          if (status && status.canSend === false) {
+            this.chatDisabled = true;
+            this.disabledReason = status.reason || this.translations?.creditsExhausted || 'Hai raggiunto il limite giornaliero. Riprova domani.';
+          }
+        },
+        error: () => {
+          // keep enabled if status fails
         }
       });
 
@@ -389,10 +435,15 @@ export class AiChatButtonComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Chat Error:', error);
-          this.chatHistory.push({
-            role: 'assistant',
-            content: 'Sorry, I had a problem processing your request.'
-          });
+          if ((error && error.status === 429) || /429/.test(error?.message || '')) {
+            this.chatDisabled = true;
+            this.disabledReason = error?.error?.message || this.translations?.creditsExhausted || 'Hai raggiunto il limite giornaliero di richieste AI. Riprova domani.';
+          } else {
+            this.chatHistory.push({
+              role: 'assistant',
+              content: 'Sorry, I had a problem processing your request.'
+            });
+          }
           this.isLoading = false;
         }
       });

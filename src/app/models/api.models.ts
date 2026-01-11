@@ -73,6 +73,7 @@ export interface FixedTexts {
         challengesTitle: string;
         solutionLabel: string;
         subProjectsLabel: string;
+        clickToEnlarge?: string;
     };
     documents: {
         title: string;

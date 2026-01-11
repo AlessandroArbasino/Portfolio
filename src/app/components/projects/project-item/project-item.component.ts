@@ -59,6 +59,11 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                     }
                   </ngx-slick-carousel>
                 </div>
+                @if(fixedTexts) {
+                  <p class="text-white/60 text-xs text-center mt-1 mb-4">
+                    {{ fixedTexts.projects.clickToEnlarge }}
+                  </p>
+                }
               }
 
               <!-- Tech Stack -->
@@ -176,6 +181,11 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                                   }
                                 </ngx-slick-carousel>
                               </div>
+                              @if(fixedTexts) {
+                                <p class="text-white/60 text-xs text-center mt-1 mb-2">
+                                  {{ fixedTexts.projects.clickToEnlarge }}
+                                </p>
+                              }
                             }
 
                             <!-- SubProject Details -->

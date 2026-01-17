@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 import connectDB from './config/db.js';
 import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
@@ -43,16 +44,19 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Session cookie middleware for chat endpoints
+// Security-enhanced: uses crypto for secure IDs, strict CSRF protection, HTTPS-only in production
 function ensureSessionCookie(req, res, next) {
     const COOKIE_NAME = 'chat_session_id';
     let sid = req.cookies?.[COOKIE_NAME];
     if (!sid) {
-        sid = 'session-' + Math.random().toString(36).substr(2, 9);
+        // Generate cryptographically secure random session ID
+        sid = 'session-' + crypto.randomBytes(32).toString('hex');
         res.cookie(COOKIE_NAME, sid, {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: false,
+            httpOnly: true,              // Prevents XSS attacks
+            sameSite: 'strict',          // Strong CSRF protection
+            secure: true, 
             path: '/',
+            maxAge: 24 * 60 * 60 * 1000  // 24 hours expiration
         });
     }
     req.sessionId = sid;

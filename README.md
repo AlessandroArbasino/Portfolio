@@ -1,6 +1,6 @@
 # Portfolio - Alessandro Arbasino
 
-Portfolio personale interattivo costruito con **Angular 21** e **Node.js/Express**, con integrazione AI per personalizzazione dinamica del tema.
+Portfolio personale interattivo costruito con **Angular 18** e **Node.js/Express**, con integrazione AI per personalizzazione dinamica del tema.
 
 ## 🚀 Features
 
@@ -14,8 +14,8 @@ Portfolio personale interattivo costruito con **Angular 21** e **Node.js/Express
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Angular 21** (Standalone Components)
-- **TypeScript 5.9**
+- **Angular 18** (Standalone Components)
+- **TypeScript 5.5**
 - **TailwindCSS 3.4**
 - **RxJS** per gestione stato reattivo
 - **Angular Material 18**
@@ -26,9 +26,6 @@ Portfolio personale interattivo costruito con **Angular 21** e **Node.js/Express
 - **Google Gemini AI** per chat intelligente
 - **Cloudinary** per gestione media
 
-## 📦 Installation
-
-```bash
 # Clone repository
 git clone https://github.com/yourusername/portfolio.git
 cd portfolio
@@ -112,13 +109,6 @@ portfolio/
 - Color extraction from background images/videos
 - Theme persistence in MongoDB (linked to chat session)
 
-### SEO Optimization
-- Meta description, keywords, author
-- Open Graph tags (Facebook, LinkedIn)
-- Twitter Card tags
-- Structured Data (JSON-LD) for Person and WebSite schema
-- Semantic HTML (`<main>`, `<footer>`, `role` attributes)
-
 ### Multilingual Support
 - Dynamic language switching (IT/EN)
 - Texts stored in MongoDB
@@ -126,47 +116,9 @@ portfolio/
 
 ## 📝 Scripts
 
-```bash
 # Development
 npm run dev              # Run client + server concurrently
 npm run dev:client       # Run only Angular dev server
-npm run server           # Run only Node.js server
-
-# Production
-npm run build            # Build Angular app
-npm start                # Run Angular dev server
-
-# Testing
-npm test                 # Run unit tests
-```
-
-## 🔒 Security Notes
-
-⚠️ **NEVER commit `.env` file to Git!**
-
-The `.gitignore` already excludes:
-- `.env` and `.env.*`
-- `node_modules/`
-- `dist/`
-
-Before pushing to public repository:
-1. ✅ Verify `.env` is in `.gitignore`
-2. ✅ Check no API keys are hardcoded
-3. ✅ Create `.env.example` with placeholder values
-
-## 📊 SEO Checklist
-
-After deployment:
-- [ ] Verify `robots.txt` accessible: `https://yoursite.com/robots.txt`
-- [ ] Verify `sitemap.xml` accessible: `https://yoursite.com/sitemap.xml`
-- [ ] Submit sitemap to Google Search Console
-- [ ] Test with Lighthouse (DevTools → Lighthouse → SEO)
-- [ ] Test Open Graph with [Facebook Debugger](https://developers.facebook.com/tools/debug/)
-- [ ] Test Twitter Cards with [Twitter Validator](https://cards-dev.twitter.com/validator)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
@@ -178,7 +130,3 @@ This project is open source and available under the [MIT License](LICENSE).
 - Portfolio: [alessandroarbasino.vercel.app](https://alessandroarbasino.vercel.app)
 - GitHub: [@alessandroarbasino](https://github.com/alessandroarbasino)
 - LinkedIn: [Alessandro Arbasino](https://linkedin.com/in/alessandroarbasino)
-
----
-
-Made with ❤️ using Angular 21 and Node.js

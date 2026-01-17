@@ -45,7 +45,7 @@ import { LanguageService } from './services/language.service';
       <app-video-background [forcedUrl]="forcedBackground" />
 
       <!-- Main Content -->
-      <main class="relative z-10">
+      <main class="relative z-10" role="main">
         <app-hero />
         <app-about />
         <app-projects />

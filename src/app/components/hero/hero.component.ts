@@ -9,7 +9,7 @@ import { FixedTexts } from '../../models/api.models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="min-h-screen flex flex-col items-center justify-center px-4 relative">
+    <section class="min-h-screen flex flex-col items-center justify-center px-4 relative" role="banner">
       @if (fixedTexts && fixedTexts.hero) {
         <div class="text-center z-10 opacity-0 animate-fade-in-up" style="animation-fill-mode: forwards;">
           <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 opacity-0 animate-fade-in-up" style="animation-fill-mode: forwards; animation-delay: 0.2s;">

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://alessandroarbasino.vercel.app/sitemap.xml
+
+# Crawl-delay (opzionale, per essere gentili con i bot)
+Crawl-delay: 1

@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import connectDB from './config/db.js';
-import { clerkMiddleware, requireAuth } from '@clerk/express';
 import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
@@ -43,7 +42,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(clerkMiddleware()); // Initialize Clerk Middleware
 
 // Session cookie middleware for chat endpoints
 // Security-enhanced: uses crypto for secure IDs, strict CSRF protection, HTTPS-only in production

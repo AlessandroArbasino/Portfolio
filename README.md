@@ -1,132 +1,106 @@
-# Portfolio - Alessandro Arbasino
+# Portfolio — Alessandro Arbasino
 
-Portfolio personale interattivo costruito con **Angular 18** e **Node.js/Express**, con integrazione AI per personalizzazione dinamica del tema.
+Portfolio personale realizzato con Angular e Node.js/Express. Presenta progetti, profilo e contatti con contenuti localizzati e una chat AI per personalizzare il tema.
 
-## 🚀 Features
+## Funzionalità
 
-- ✨ **AI-Powered Theming**: Chat AI con Google Gemini per personalizzare colori e background
-- 🎨 **Dynamic Color Extraction**: Estrazione automatica palette colori da immagini/video
-- 🌍 **Multilingual**: Supporto multilingua dinamico (IT/EN)
-- 📱 **Responsive Design**: Design mobile-first con TailwindCSS
-- 🔍 **SEO Optimized**: Meta tags, Open Graph, Twitter Cards, Structured Data
-- 🎭 **Smooth Animations**: Animazioni fluide con Angular Animations API
+- Sezioni profilo, progetti, documenti e contatti.
+- Contenuti e progetti in più lingue, gestiti tramite MongoDB.
+- Chat AI con Gemini e personalizzazione dinamica del tema.
+- Galleria immagini e video, con anteprima incorporata per BookMatch.
+- Interfaccia responsive e metadati SEO.
 
-## 🛠️ Tech Stack
+## Stack
 
-### Frontend
-- **Angular 18** (Standalone Components)
-- **TypeScript 5.5**
-- **TailwindCSS 3.4**
-- **RxJS** per gestione stato reattivo
-- **Angular Material 18**
+- **Frontend:** Angular 18, TypeScript, RxJS, Tailwind CSS, Angular Material.
+- **Backend:** Node.js, Express 5, MongoDB, Mongoose.
+- **Servizi:** Gemini per la chat e Pexels per i media di sfondo.
 
-### Backend
-- **Node.js** + **Express 5**
-- **MongoDB** con Mongoose
-- **Google Gemini AI** per chat intelligente
-- **Cloudinary** per gestione media
+## Avvio in locale
 
-# Clone repository
-git clone https://github.com/yourusername/portfolio.git
-cd portfolio
+Requisiti: Node.js/npm e un’istanza MongoDB locale o remota.
 
-# Install dependencies
-npm install
+1. Installa le dipendenze:
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your API keys
+   ```powershell
+   npm install
+   ```
 
-# Run development server
-npm run dev
+2. Crea un file `.env` nella root. Per avviare sito, API e progetti è necessario configurare MongoDB:
+
+   ```env
+   MONGO_URI=mongodb://localhost:27017/portfolio
+   PORT=3000
+   NODE_ENV=development
+   ```
+
+   Per abilitare tutte le funzionalità, aggiungi anche le chiavi dei servizi usati dall’app:
+
+   ```env
+   GEMINI_API_KEY=
+   PEXELS_API_KEY=
+   TRANSLATE_CONTENT_API_KEY=
+   AI_CHAT_RETENTION_DAYS=30
+   ```
+
+3. Avvia backend e frontend insieme:
+
+   ```powershell
+   npm run dev
+   ```
+
+4. Apri [http://localhost:4200](http://localhost:4200). L’anteprima BookMatch usa il sito già pubblicato su Vercel; non è necessario fare il deploy del portfolio per visualizzarla.
+
+Per avviare solo Angular, usa `npm run dev:client`. In questo caso le API richiedono comunque il backend e MongoDB.
+
+## Progetti e localizzazione
+
+I progetti sono salvati nella collection `projects` e recuperati da `/api/projects?lang=<lingua>`. Ogni documento contiene lingua, descrizione, stack, link e tipo. L’API ordina i progetti più recenti per primi.
+
+Per aggiungere un progetto:
+
+1. Aggiungi i dati per ogni lingua in `bookMatchProjects`/dati seed in `server/server.js`, usando un ID coerente, ad esempio `nuovo-progetto_en` e `nuovo-progetto_it`, e il campo `language` corrispondente.
+2. Mantieni gli stessi campi e lo stesso stack nelle varianti localizzate; traduci nome e descrizione.
+3. Per un’anteprima incorporata, imposta `previewUrl` solo per URL esplicitamente autorizzati nella logica iframe di `src/app/components/projects/project-item/project-item.component.ts`.
+4. I seed dei progetti devono essere idempotenti: usa un upsert per non duplicare i documenti quando il server si riavvia.
+
+Per aggiungere una nuova stringa fissa dell’interfaccia:
+
+1. Aggiungi la chiave e il relativo tipo all’interfaccia `FixedTexts` in `src/app/models/api.models.ts` (nella sezione appropriata).
+2. Aggiungi il testo in ogni lingua supportata nei documenti `FixedText` della collection MongoDB. Il formato è `{ section, language, content }`; `content` è una mappa di chiavi e stringhe.
+3. Per i testi iniziali gestiti dai seed, aggiorna `seedSection` in `server/server.js` e fornisci i valori localizzati per ogni lingua. Il seed esistente crea i contenuti iniziali in inglese.
+4. Consuma la chiave nel componente Angular usando `fixedTexts.<sezione>.<chiave>`. `/api/fixed-texts` restituisce la lingua richiesta e usa l’italiano come fallback se la traduzione non esiste.
+
+Le traduzioni di progetto seguono la stessa struttura: un documento per lingua, con ID che termina con il codice lingua, ad esempio `_en` o `_it`. Le route di traduzione sono definite in `server/routes/translateRoutes.js`.
+
+## Comandi
+
+| Comando | Descrizione |
+| --- | --- |
+| `npm run dev` | Avvia server API e frontend Angular |
+| `npm run dev:client` | Avvia il solo frontend |
+| `npm run server` | Avvia il solo backend |
+| `npm run build` | Build Angular di produzione |
+| `npm test` | Avvia i test Angular |
+
+## Struttura
+
+```text
+src/app/
+  components/   Componenti Angular e sezione progetti
+  models/       Interfacce dei dati API
+  services/     API, lingua, tema, media e SEO
+server/
+  controllers/  Endpoint e logica applicativa
+  models/       Modelli Mongoose
+  routes/       Route Express
+  services/     Integrazioni AI
 ```
 
-## 🔐 Environment Variables
+## Deploy
 
-Create a `.env` file in the root directory:
+Il progetto è configurato per Vercel tramite `vercel.json`. Configura nell’ambiente di deploy le variabili necessarie, in particolare `MONGO_URI`; le funzionalità AI richiedono anche le rispettive chiavi API.
 
-```env
-# MongoDB
-MONGODB_URI=your_mongodb_connection_string
+## Licenza
 
-# API Keys
-PEXELS_API_KEY=your_pexels_api_key
-GEMINI_API_KEY=your_google_gemini_api_key
-TRANSLATE_CONTENT_API_KEY=your_translate_api_key
-
-# Cloudinary (optional)
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-# Settings
-AI_CHAT_RETENTION_DAYS=30
-PORT=3000
-NODE_ENV=development
-```
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-### Environment Variables in Vercel
-Add all variables from `.env.example` in:
-`Project Settings → Environment Variables`
-
-## 📁 Project Structure
-
-```
-portfolio/
-├── src/
-│   ├── app/
-│   │   ├── components/      # Angular components
-│   │   ├── services/        # Services (API, Theme, Language, SEO)
-│   │   ├── interceptors/    # HTTP interceptors
-│   │   └── models/          # TypeScript interfaces
-│   └── index.html           # Main HTML with SEO meta tags
-├── server/
-│   ├── controllers/         # API controllers
-│   ├── models/             # MongoDB models
-│   ├── routes/             # Express routes
-│   ├── services/           # Business logic
-│   └── server.js           # Express server
-├── public/
-│   ├── robots.txt          # SEO: Robots file
-│   ├── sitemap.xml         # SEO: Sitemap
-│   └── google*.html        # Google Search Console verification
-└── vercel.json             # Vercel configuration
-```
-
-## 🎨 Key Features Explained
-
-### AI Chat Personalization
-- Users can chat with AI to change portfolio theme
-- Color extraction from background images/videos
-- Theme persistence in MongoDB (linked to chat session)
-
-### Multilingual Support
-- Dynamic language switching (IT/EN)
-- Texts stored in MongoDB
-- No page reload required
-
-## 📝 Scripts
-
-# Development
-npm run dev              # Run client + server concurrently
-npm run dev:client       # Run only Angular dev server
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 👤 Author
-
-**Alessandro Arbasino**
-- Portfolio: [alessandroarbasino.vercel.app](https://alessandroarbasino.vercel.app)
-- GitHub: [@alessandroarbasino](https://github.com/alessandroarbasino)
-- LinkedIn: [Alessandro Arbasino](https://linkedin.com/in/alessandroarbasino)
+Distribuito secondo i termini della [licenza MIT](LICENSE).

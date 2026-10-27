@@ -10,7 +10,7 @@ export const getProjects = async (req, res) => {
         if (type) {
             query.type = type;
         }
-        const projects = await Project.find(query).sort({ id: 1 });
+        const projects = await Project.find(query).sort({ createdAt: -1, id: 1 });
         res.json(projects);
     } catch (error) {
         res.status(500).json({ message: error.message });

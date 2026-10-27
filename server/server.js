@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import connectDB from './config/db.js';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
 import projectRoutes from './routes/projectRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
@@ -42,6 +43,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(clerkMiddleware()); // Initialize Clerk Middleware
 
 // Session cookie middleware for chat endpoints
 // Security-enhanced: uses crypto for secure IDs, strict CSRF protection, HTTPS-only in production
@@ -54,7 +56,7 @@ function ensureSessionCookie(req, res, next) {
         res.cookie(COOKIE_NAME, sid, {
             httpOnly: true,              // Prevents XSS attacks
             sameSite: 'strict',          // Strong CSRF protection
-            secure: true, 
+            secure: true,
             path: '/',
             maxAge: 24 * 60 * 60 * 1000  // 24 hours expiration
         });
@@ -68,6 +70,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api', contentRoutes);
 app.use('/api/chat', ensureSessionCookie, chatRoutes);
 app.use('/api/translate', verifyTranslateApiKey, translateRoutes);
+// Example: Protect profile routes (require authentication)
 app.use('/api/profile', profileRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/contact', contactRoutes);
@@ -292,6 +295,71 @@ const seedData = async () => {
                 }
             ];
             await Project.insertMany(projects);
+        }
+
+        const bookMatchProjects = [
+            {
+                id: 'bookmatch_it',
+                name: 'BookMatch',
+                description: 'Una piattaforma di scoperta e abbinamento di libri che trasforma le preferenze di lettura in suggerimenti personalizzati. Gli utenti possono esplorare i titoli con un’interfaccia ispirata allo swipe, salvarli nella propria libreria e dialogare con un assistente AI per approfondirne temi e personaggi.',
+                tech: [
+                    'Next.js 16',
+                    'React 19',
+                    'TypeScript',
+                    'Node.js',
+                    'Express',
+                    'MongoDB',
+                    'Clerk',
+                    'Groq',
+                    'Anthropic',
+                    'OpenAI',
+                    'Upstash Redis',
+                    'Tailwind CSS',
+                    'React Native',
+                    'Expo',
+                    'Vercel'
+                ],
+                demo: 'https://book-match-pink.vercel.app/',
+                previewUrl: 'https://book-match-pink.vercel.app/',
+                images: [],
+                type: 'web',
+                language: 'it'
+            },
+            {
+                id: 'bookmatch_en',
+                name: 'BookMatch',
+                description: 'A book discovery and matching platform that turns reading preferences into personalized recommendations. Readers can explore titles through a swipe-inspired interface, save them to their library, and talk with an AI assistant to explore themes and characters.',
+                tech: [
+                    'Next.js 16',
+                    'React 19',
+                    'TypeScript',
+                    'Node.js',
+                    'Express',
+                    'MongoDB',
+                    'Clerk',
+                    'Groq',
+                    'Anthropic',
+                    'OpenAI',
+                    'Upstash Redis',
+                    'Tailwind CSS',
+                    'React Native',
+                    'Expo',
+                    'Vercel'
+                ],
+                demo: 'https://book-match-pink.vercel.app/',
+                previewUrl: 'https://book-match-pink.vercel.app/',
+                images: [],
+                type: 'web',
+                language: 'en'
+            }
+        ];
+
+        for (const project of bookMatchProjects) {
+            await Project.updateOne(
+                { id: project.id },
+                { $setOnInsert: project },
+                { upsert: true }
+            );
         }
 
         const seedSection = async (section, content) => {

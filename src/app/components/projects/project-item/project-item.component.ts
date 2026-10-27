@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { trigger, style, transition, animate } from '@angular/animations';
 import { Project, SubProject, FixedTexts } from '../../../models/api.models';
@@ -74,6 +75,18 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
                   </span>
                 }
               </div>
+
+              @if (getPreviewUrl(project.previewUrl); as previewUrl) {
+                <div class="mb-6 overflow-hidden rounded-lg border border-white/10 bg-white">
+                  <iframe
+                    [src]="previewUrl"
+                    [title]="project.name + ' live preview'"
+                    loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    class="h-[520px] w-full md:h-[640px]"
+                  ></iframe>
+                </div>
+              }
 
               <!-- Challenges -->
               @if (project.challenges && project.challenges.length > 0 && fixedTexts) {
@@ -256,6 +269,10 @@ import { MediaRendererComponent } from '../../media-renderer/media-renderer.comp
   ]
 })
 export class ProjectItemComponent {
+  private readonly bookMatchPreviewUrl = 'https://book-match-pink.vercel.app/';
+  private sanitizedPreviewUrl: SafeResourceUrl | null = null;
+  private previewUrlSource: string | undefined;
+
   @Input() project!: Project;
   @Input() fixedTexts: FixedTexts | null = null;
   @Input() isExpanded = false;
@@ -263,6 +280,19 @@ export class ProjectItemComponent {
   @Output() mediaClick = new EventEmitter<{ url: string, type: 'image' | 'video' }>();
 
   expandedSubProject: string | null = null;
+
+  constructor(private sanitizer: DomSanitizer) { }
+
+  getPreviewUrl(url?: string): SafeResourceUrl | null {
+    if (url !== this.previewUrlSource) {
+      this.previewUrlSource = url;
+      this.sanitizedPreviewUrl = url === this.bookMatchPreviewUrl
+        ? this.sanitizer.bypassSecurityTrustResourceUrl(url)
+        : null;
+    }
+
+    return this.sanitizedPreviewUrl;
+  }
 
   getMediaType(url: string): 'image' | 'video' {
     if (!url) return 'image';

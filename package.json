@@ -22,6 +22,8 @@
     "@angular/material": "^18.2.0",
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
+    "@clerk/clerk-js": "^5.120.0",
+    "@clerk/express": "^1.7.63",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.2",
     "cookie-parser": "^1.4.7",

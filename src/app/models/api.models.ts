@@ -18,6 +18,7 @@ export interface Project {
     tech: string[];
     github?: string;
     demo?: string;
+    previewUrl?: string;
     images: string[];
     challenges?: {
         problem: string;

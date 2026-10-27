@@ -20,6 +20,7 @@ const projectSchema = new mongoose.Schema({
     tech: [String],
     github: String,
     demo: String,
+    previewUrl: String,
     images: [String],
     challenges: [{
         problem: String,
